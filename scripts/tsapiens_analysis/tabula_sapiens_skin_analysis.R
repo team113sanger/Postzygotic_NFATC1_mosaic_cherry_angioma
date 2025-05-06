@@ -23,32 +23,32 @@ projdir <- here::here()
 tabdatadir<- file.path(projdir, "data", "tabula_sapiens")
 setwd(projdir)
 results_dir <- file.path(projdir, "results", "tsapiens_analysis")
+fig_dir <- file.path(projdir, "results", "figures")
 #Check if the results directory exists, if not create it
 if (!dir.exists(results_dir)) {
   dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
 }
+if(!dir.exists(fig_dir)){
+  dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
+}
 
-## Get the data from the Tabula Sapiens 
+## Get the data from the Tabula Sapiens - Skin data from CellxGene 
 # Tabula Sapiens 1.0 Skin  URL https://datasets.cellxgene.cziscience.com/9405995f-b1c6-485c-8cc9-b80b9e870057.h5ad
 # Download  .RDS with the Skin data from Tabula Sapiens 1.0 - ID 9405995f-b1c6-485c-8cc9-b80b9e870057.rds
 # hd5ad files generated for TBS1.0 have issues in being converted to h5Seurat format to be loaded in Seurat
-# Because of this, we are using the .rds file directly from the CellXgene repository
+# Because of this, we are using the .rds file directly from the CellXFene repository
 tbs_skin_data_url<-"https://datasets.cellxgene.cziscience.com/9405995f-b1c6-485c-8cc9-b80b9e870057.rds"
 logger::log_info("Reading the Tabula Sapiens 1.0 skin file from the CellXgene repository")
-logger::log_info(paste0("Downloading : ", tbs_skin_data_url))
+logger::log_info(paste0("Reading : ", tbs_skin_data_url))
 data_SKin <- readRDS(url(tbs_skin_data_url))
-##Data downloaded from Tabula Sapiens - Skin CellxGene repo
-#(https://cellxgene.cziscience.com/collections/e5f58829-1a66-40b5-a624-9046778e74f5)
-#tab_skin_data<- file.path(tabdatadir, "9405995f-b1c6-485c-8cc9-b80b9e870057.rds")
-#data_SKin <- readRDS(tab_skin_data)
 
 ##Save first plot, dimplot
-png(file.path(results_dir, "DimPlot.png"),width=7500,height=3000,res=600)
+png(file.path(fig_dir, "Fig1B_TBS_skin_DimPlot.png"),width=7500,height=3000,res=600)
 DimPlot(data_SKin, reduction = "umap",group.by = "cell_ontology_class")+
   labs(title = "Tabula Sapiens (Skin)")
 dev.off()
 
-# With Colours more friendly to colorblind people
+# With Colours more friendly to colourblind 
 #FBE183 #F7D144 #F4C00D #FAAA05 #F78C09 #E35D2A #C8403D mast cell
  #A7373F #B14054 #D55474 #E26781 #E77988 #E78E97 #E3A0A5
  #C38AA3 #A8759F #A26296 #924E8A #723B79 #4F447E #2A6494
@@ -57,7 +57,7 @@ ident_colors <- colorRampPalette(paletteer::paletteer_d("MetBrewer::Signac",14 )
 ident_colors[11]<-"#C8403D" # Reassign Endothelial cell color
 ident_colors[7]<-"#E26781" # Reassign Mast cell color
 names(ident_colors) <- unique(data_SKin$cell_ontology_class) #Set names for each color
-png(file.path(results_dir, "DimPlot_colblind.png"),width=7500,height=3000,res=600)
+png(file.path(results_dir, "Fig1B_TBS_skin_DimPlot_colblind.png"),width=7500,height=3000,res=600)
 DimPlot(data_SKin, reduction = "umap",group.by = "cell_ontology_class", cols=ident_colors)+
   labs(title = "Tabula Sapiens (Skin)")
 dev.off()
@@ -66,7 +66,7 @@ dev.off()
 gidentcol<-rep("lightgrey",length(unique(data_SKin$cell_ontology_class)))
 gidentcol[11]<-"#C8403D" # Re-assign Endothelial cell color
 names(gidentcol) <- unique(data_SKin$cell_ontology_class) #Set names for each color
-png(file.path(results_dir, "DimPlot_gendothelial.png"),width=7500,height=3000,res=600)
+png(file.path(results_dir, "TBS_skin_DimPlot_gendothelial.png"),width=7500,height=3000,res=600)
 DimPlot(data_SKin, reduction = "umap",group.by = "cell_ontology_class", cols=gidentcol)+
   labs(title = "Tabula Sapiens (Skin)")
 dev.off()
@@ -74,7 +74,7 @@ dev.off()
 ##Set identity
 data_SKin <- SetIdent(data_SKin, value = "cell_ontology_class")
 
-##Sorting data by NFATC1
+##Sorting data by NFATC1 expression
 a<-DotPlot(object = data_SKin, features = "ENSG00000131196")
 a$data%>%arrange(-avg.exp)%>%select(id)%>%as.matrix()
 
@@ -82,28 +82,27 @@ data_SKin@active.ident <- factor(data_SKin@active.ident,
                             levels=a$data%>%arrange(pct.exp)%>%select(id)%>%as.matrix()
 )
 
-png(file.path(results_dir, "NFATC1_Exp_TS_skin_cells.png"),width=4500,height=3500,res=600)
+logger::log_info("Plotting the expression of NFATC1 across all cell types")
+png(file.path(fig_dir, "Fig1C_NFATC1_Exp_TS_skin_cells.png"),width=4500,height=3500,res=600)
 DotPlot(object = data_SKin, features = "ENSG00000131196")+
   scale_x_discrete(labels=c( "NFATC1"))+xlab("")
 dev.off()
 #plot with NFATC1 and VEGFR2 VEGFR1
-png(file.path(results_dir, "NFATC1_VGFR1_2_Exp_TS_skin_cells.png"),width=4500,height=3500,res=600)
-DotPlot(object = data_SKin, features = c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052" ))+
-  scale_x_discrete(labels=c( "NFATC1", "VEGFR1", "VEGFR2"))+xlab("")+theme(axis.text.x = element_text(angle=45, hjust=1))
+logger::log_info("Plotting the expression of NFATC1, VEGFR1, VEGFR2 and MAPK1 (ERK) across all cell types")
+png(file.path(results_dir, "Fig1C_NFATC1_VGFR1_2_MAPK1_Exp_TS_skin_cells.png"),width=4500,height=3500,res=600)
+DotPlot(object = data_SKin, features = c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052", "ENSG00000100030" ))+
+  scale_x_discrete(labels=c( "NFATC1", "VEGFR1", "VEGFR2", "MAPK1"))+xlab("")+theme(axis.text.x = element_text(angle=45, hjust=1))
 dev.off()
 
 #### Selecting endothelial cells
 rownames(data_SKin@meta.data)[which(data_SKin@meta.data$cell_ontology_class=="endothelial cell")]
-
 counts <- GetAssayData(data_SKin, slot="counts", assay="RNA") 
-
 counts.sub <- counts[,which(data_SKin@meta.data$cell_ontology_class=="endothelial cell")] #only endothelial cells
-
 metas.sub<-data_SKin@meta.data[which(data_SKin@meta.data$cell_ontology_class=="endothelial cell"),]
-
 data_SKin2 <- CreateSeuratObject(counts=counts.sub,meta.data = metas.sub)
 
-###Dichotomizing dataset
+###Dichotomising dataset based on NFATC1 expression
+logger::log_info("Dichotomising Tabula Sapiens Skin dataset based on NFATC1 expression")
 med_NFATC1<- median(data_SKin2@assays$RNA$counts["ENSG00000131196",])
 
 ### Boxplot of log10 NFATC1 levels
@@ -124,19 +123,17 @@ exp$Group->data_SKin2@meta.data$groups
 data_Skin3<-subset(data_SKin, cells=rownames(data_SKin@meta.data)[which(data_SKin@meta.data$cell_ontology_class=="endothelial cell")])
 data_Skin3@meta.data$groups<-exp$Group
 data_Skin3<- SetIdent(data_Skin3, value = "groups")
-#Plot  the expression NFATC1, VEGFR1, VEGFR2FeaturePLot with NFATC1 and VEGFR2 VEGFR1
-png(file.path(results_dir, "Fplot_Endocells_NFATC1_VEGFR.png"),width=4500,height=3500,res=600)
-FeaturePlot(data_Skin3, features = c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052" ))
-dev.off()
 
+logger::log_info("Plotting the expression of NFATC1, VEGFR1, VEGFR2 and MAPK1 (ERK) by NFATC1 expression group")
 #Plot  the expression NFATC1, VEGFR1, VEGFR2 and MAPK1 (ERK) FeaturePLot with NFATC1 and VEGFR2 VEGFR1
 # Relevant for proliferation
 # https://www.frontiersin.org/journals/cell-and-developmental-biology/articles/10.3389/fcell.2020.599281/full
-png(file.path(results_dir, "Exp_cell_endo_NFATC_explblgroup.png"),width=4500,height=3500,res=600)
+png(file.path(results_dir, "FigN_TBS_skin_Endothelial_cells_by_NFATC_expgroup.png"),width=4500,height=3500,res=600)
 DotPlot(object = data_Skin3, features = c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052", "ENSG00000100030" ))+
-  scale_x_discrete(labels=c( "NFATC1", "VEGFR1", "VEGFR2", "MAPK1"))+xlab("")+theme(axis.text.x = element_text(angle=45, hjust=1))
+  scale_x_discrete(labels=c( "NFATC1", "VEGFR1", "VEGFR2", "MAPK1"))+xlab("")+
+  theme(axis.text.x = element_text(angle=45, hjust=1))
 dev.off()
-png(file.path(results_dir, "Endocells_DimPlot_by_NFATC1_expgroup.png"),width=6500,height=3000,res=600)
+png(file.path(results_dir, "FigN_TBS_skin_Endocells_DimPlot_by_NFATC1_expgroup.png"),width=6500,height=3000,res=600)
 DimPlot(data_Skin3, reduction = "umap", group.by = "groups")+
   labs(title = "Tabula Sapiens (Skin)")
 dev.off()
@@ -148,10 +145,9 @@ rm(list=c("a","dados","exp","counts.sub","metas.sub","counts"))
 ###Converting to a DESeq2 object
 counts_ls <- list()
 counts_ls <- data_SKin2@assays$RNA$counts+1
-#names(counts_ls)<- "Tabula Skin"
 
 str(counts_ls)
-
+# Plot the distribution of counts
 png(file.path(results_dir, "Boxplot_counts_ls.png"),width=4500,height=3500,res=600)
 boxplot(log10(rowSums(counts_ls)))
 dev.off()
@@ -161,7 +157,7 @@ log10(sum(counts_ls["ENSG00000131196",])) #4.403 NFATC1 sum level
 ## In this case, no exclusion of genes will be applied
 counts_ls[which(log10(rowSums(counts_ls))>3.15),]->counts_ls ## 3.11 is log10(1309) the number of participant cells
 
-
+logger::log_info("Performing differential expression analysis between NFATC1 expression groups using DESeq2")
 dds <- DESeqDataSetFromMatrix(counts_ls, 
                               colData=data_SKin2@meta.data,
                               design = ~groups)
@@ -169,28 +165,25 @@ dds <- DESeqDataSetFromMatrix(counts_ls,
 ### running differential expression analysis
 dds <- DESeq(dds)
 res<-results(dds, tidy=TRUE)
-write.csv(res,file.path(results_dir,"results_Tidy.csv")) ##Save the differential expression result
 
+############ Addition of the gene names to the results
+dados<-res
 
-############ Recall data
-dados<-read.csv(file.path(results_dir,"results_Tidy.csv"))
-
-##Converting Ensembl codes to gene symbols
-library(EnsDb.Hsapiens.v79)
-
+##Converting ENSEMBL gene IDs to gene symbols and entrez IDs
+logger::log_info("Genetting gene symbols and entrez IDs")
 ensembl.genes <- dados$row
-
 geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= ensembl.genes, keytype = "GENEID", columns = c("SYMBOL","GENEID","ENTREZID"))
-
 colnames(geneIDs1)<-c("Symbol","row","entrez")
+dados<-merge(dados,geneIDs1,by="row")
 
-merge(dados,geneIDs1,by="row")->dados
-
-write.csv(dados[,-2],file.path(results_dir, "Gene_List.csv")) ##Saving diff expressed genes
+logger::log_info("writing and plotting the differential expression results")
+#Writin the differentially expressed genes  
+write.csv(dados,file.path(results_dir,"DE_genes_by_NFATC1exp_results_Tidy.csv"), row.names=FALSE, quote=FALSE) ##Save the differential expression result
+write.csv(dados[,-2],file.path(results_dir, "Gene_List.csv"), row.names=FALSE, quote=FALSE) ##Saving diff expressed genes
 
 ############ Volcano plot
 dados$log2FoldChange*-1 -> dados$log2FoldChange
-png(file.path(results_dir, "VolcanoPlot_Tabula_endothelial.png"),width=4500,height = 3500,res=600)
+png(file.path(fig_dir, "Fig1E_VolcanoPlot_Tabula_endothelial.png"),width=4500,height = 3500,res=600)
 EnhancedVolcano(dados,lab=dados$Symbol,y="padj",x="log2FoldChange",
                 pCutoff = 1e-50,
                 drawConnectors = T,
@@ -200,14 +193,12 @@ EnhancedVolcano(dados,lab=dados$Symbol,y="padj",x="log2FoldChange",
 dev.off()
 
 
-############ GSEA
-
+############ GSEA - Gene Set Enrichment Analysis
+logger::log_info("Reading the Tabula Sapiens 1.0 skin file from the CellXgene repository")
+#Select the genes with padj<0.01
 dados%>%
-  dplyr::filter(pvalue<0.01)->dados2
-
-
+  dplyr::filter(padj<0.01)->dados2
 dados2$log2FoldChange->original_gene_list
-
 dados2$entrez->names(original_gene_list)
 
 # omit any NA values 
@@ -232,8 +223,9 @@ gse <- gseGO(geneList=gene_list,
              OrgDb = "org.Hs.eg.db", 
              pAdjustMethod = "BH") #"holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"
 
-#View(as.data.frame(gse)) ##See results
-png(file.path(results_dir, "gse_5reg_endothelial subset_BP.png"),width=2800,height = 2500,res=600)
+logger::log_info("Plotting the GSEA results")
+#Plotting the GSEA results 
+png(file.path(fig_dir, "Fig1F_TBS_skin_Endo_by_NFATC1_exp_gse_5reg_endothelial subset_BP.png"),width=2800,height = 2500,res=600)
 dotplot(gse, showCategory=5, split=".sign" ,color="pvalue") +
  facet_grid(.~.sign)+
  theme(text = element_text(size=15),
@@ -242,9 +234,7 @@ dotplot(gse, showCategory=5, split=".sign" ,color="pvalue") +
       axis.text.y = element_text(size=9,hjust=1))+xlim(c(0.35,0.55))
 dev.off()
 
-
 png(file.path(results_dir, "gse_20reg_endothelial subset_BP.png"),width=2500,height = 5200,res=600)
-
 dotplot(gse, showCategory=20, split=".sign") + facet_grid(.~.sign)+
   theme(text = element_text(size=15),
         axis.text.x = element_text(size=12,angle=90, hjust=1),
@@ -255,30 +245,42 @@ dev.off()
 
 y <- setReadable(gse, OrgDb = org.Hs.eg.db, keyType="ENTREZID")
 
-write.csv(as.data.frame(y),file.path(results_dir,"gse.csv"))
-
-png(file.path(results_dir, "select_pathway6.png"),width=4000,height = 3500,res=600)
-gseaplot(gse, geneSetID = 94, title = gsub("^(.{27})(.*)$","\\1\n\\2",gse$Description[94]))
+write.csv(as.data.frame(y),file.path(results_dir,"gse.csv"), row.names=FALSE, quote=FALSE) 
+#Plotting vascular development pathway rank
+png(file.path(results_dir, "GSEA_sig6_select_pathway6_vdev.png"),width=4000,height = 3500,res=600)
+gseaplot(gse, geneSetID = 4, title = gsub("^(.{27})(.*)$","\\1\n\\2",gse$Description[4]))
 dev.off()
 
+
+########### Tabula Sapiens 1.0 - All tissues
 ### Generate the plot of NFATC1 expression on endothelial cells across all tissues on the Tabula Sapiens v1.0
 all_tissues_tbs_url<-"https://datasets.cellxgene.cziscience.com/4676160f-b0f6-4dea-a104-c2ef86c74674.rds"
 logger::log_info("Reading the Tabula Sapiens 1.0 all organs RDS from the CellXgene repository")
+logger::log_info(paste0("Reading : ", all_tissues_tbs_url))
 tbs_v1_organs<-readRDS(url(all_tissues_tbs_url))
 
 ##Set identity of cells based on the tissue they belong to on the publication
 tbs_v1_organs <- SetIdent(tbs_v1_organs, value = "tissue_in_publication")
 
-##Set identity
+##Sorting data by NFATC1
 a<-DotPlot(object = tbs_v1_organs, features = "ENSG00000131196")
 a$data%>%arrange(-avg.exp)%>%select(id)%>%as.matrix()
 tbs_v1_organs@active.ident <- factor(tbs_v1_organs@active.ident, 
                             levels=a$data%>%arrange(pct.exp)%>%select(id)%>%as.matrix()
 )
 
-##Sorting data by NFATC1
-png(file.path(results_dir, "Exp_NFATC1_tissues_tbs1.png"),width=3000,height = 3500,res=600)
+# Plotting the expression of NFATC1 across all tissues
+png(file.path(results_dir, "Fig1D_Exp_NFATC1_tissues_tbs1.png"),width=3000,height = 3500,res=600)
 DotPlot(object = tbs_v1_organs, features = "ENSG00000131196")+
   scale_x_discrete(labels=c( "NFATC1"))+xlab("")
 dev.off()
+
+# Plotting the expression of NFATC1 across all tissues with VEGFR1, VEGFR2 and MAPK1 (ERK)
+png(file.path(results_dir, "Fig1D_Exp_NFATC1_VEGFR1_2_MAPK1_tissues_tbs1.png"),width=3000,height = 3500,res=600)
+DotPlot(object = tbs_v1_organs, features = c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052", "ENSG00000100030" ))+
+  scale_x_discrete(labels=c( "NFATC1", "VEGFR1", "VEGFR2", "MAPK1"))+xlab("")+theme(axis.text.x = element_text(angle=45, hjust=1))
+dev.off()
+
 rm(tbs_v1_organs)
+
+
