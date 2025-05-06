@@ -23,7 +23,7 @@ logs
 *.fq.gz
 *.bam
 *.cram
-.Rprofile
+
 
 # Ignore dot env
 *.venv
