@@ -1,1 +1,2 @@
-# Somatic calling 
+# Somatic calling of the samples
+
