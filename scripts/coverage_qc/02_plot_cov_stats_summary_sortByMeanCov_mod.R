@@ -1,4 +1,4 @@
-#!/software/R-4.1.0/bin/Rscript 
+#!/usr/bin/env Rscript 
 
 # install.packages(c("viridis",  "cowplot"), dependencies = TRUE)
 # BiocManager::install(c("ggplot2", "dplyr", "reshape2"))
