@@ -52,10 +52,20 @@ ident_colors <- colorRampPalette(paletteer::paletteer_d("MetBrewer::Signac",14 )
 ident_colors[11]<-"#C8403D" # Reassign Endothelial cell color
 ident_colors[7]<-"#E26781" # Reassign Mast cell color
 names(ident_colors) <- unique(data_SKin$cell_ontology_class) #Set names for each color
-png(file.path(fig_dir, "Fig1B_TBS_skin_DimPlot_colblind.png"),width=7500,height=3000,res=600)
+png(file.path(fig_dir, "Fig1C_TBS_skin_DimPlot_colblind.png"),width=7500,height=3000,res=600)
 DimPlot(data_SKin, reduction = "umap",group.by = "cell_ontology_class", cols=ident_colors)+
+#Reduce the size of the legend
+  theme(legend.text=element_text(size=11))+
   labs(title = "Tabula Sapiens (Skin)")
 dev.off()
+pdf(file.path(fig_dir, "Fig1C_TBS_skin_DimPlot_colblind.pdf"),width=15,height=8)
+DimPlot(data_SKin, reduction = "umap",group.by = "cell_ontology_class", cols=ident_colors)+
+#Reduce the size of the legend
+  theme(legend.text=element_text(size=11))+
+  labs(title = "Tabula Sapiens (Skin)")
+dev.off()
+
+
 
 # Grey everything Else Endothelial cell only
 gidentcol<-rep("lightgrey",length(unique(data_SKin$cell_ontology_class)))
@@ -63,6 +73,8 @@ gidentcol[11]<-"#C8403D" # Re-assign Endothelial cell color
 names(gidentcol) <- unique(data_SKin$cell_ontology_class) #Set names for each color
 png(file.path(results_dir, "TBS_skin_DimPlot_gendothelial.png"),width=7500,height=3000,res=600)
 DimPlot(data_SKin, reduction = "umap",group.by = "cell_ontology_class", cols=gidentcol)+
+#Reduce the size of the legend
+  theme(legend.text=element_text(size=11))+
   labs(title = "Tabula Sapiens (Skin)")
 dev.off()
 
@@ -78,14 +90,22 @@ data_SKin@active.ident <- factor(data_SKin@active.ident,
 )
 
 logger::log_info("Plotting the expression of NFATC1 across all cell types")
-png(file.path(fig_dir, "Fig1C_NFATC1_Exp_TS_skin_cells.png"),width=4500,height=3500,res=600)
+png(file.path(fig_dir, "Fig1D_NFATC1_Exp_TS_skin_cells.png"),width=4500,height=3500,res=600)
 DotPlot(object = data_SKin, features = "ENSG00000131196")+
   scale_x_discrete(labels=c( "NFATC1"))+xlab("")+
   theme(axis.text.x = element_text(face='italic'))
 dev.off()
+pdf(file.path(fig_dir, "Fig1D_NFATC1_Exp_TS_skin_cells.pdf"),width=8,height=7)
+DotPlot(object = data_SKin, features = "ENSG00000131196")+
+  scale_x_discrete(labels=c( "NFATC1"))+xlab("")+
+  theme(axis.text.x = element_text(face='italic', size=15), 
+        axis.text.y = element_text(size=13))
+dev.off()
+
+
 #plot with NFATC1 and VEGFR2 VEGFR1
 logger::log_info("Plotting the expression of NFATC1, VEGFR1, VEGFR2 and MAPK1 (ERK) across all cell types")
-png(file.path(results_dir, "Fig1C_NFATC1_VGFR1_2_MAPK1_Exp_TS_skin_cells.png"),width=4500,height=3500,res=600)
+png(file.path(results_dir, "TB_skin_NFATC1_VGFR1_2_MAPK1_Exp_TS_skin_cells.png"),width=4500,height=3500,res=600)
 DotPlot(object = data_SKin, features = c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052", "ENSG00000100030" ))+
   scale_x_discrete(labels=c( "NFATC1", "VEGFR1", "VEGFR2", "MAPK1"))+xlab("")+
   theme(axis.text.x = element_text(face='italic', angle=45, hjust=1))
@@ -109,14 +129,20 @@ tbs_v1_organs@active.ident <- factor(tbs_v1_organs@active.ident,
 )
 
 # Plotting the expression of NFATC1 across all tissues
-png(file.path(fig_dir, "Fig1D_Exp_NFATC1_tissues_tbs1.png"),width=3000,height = 3500,res=600)
+png(file.path(fig_dir, "Fig1E_Exp_NFATC1_tissues_tbs1.png"),width=3000,height = 3500,res=600)
 DotPlot(object = tbs_v1_organs, features = "ENSG00000131196")+
   scale_x_discrete(labels=c( "NFATC1"))+xlab("")+
-  theme(axis.text.x = element_text(face='italic', hjust=1))
+  theme(axis.text.x = element_text(face='italic'))
+dev.off()
+pdf(file.path(fig_dir, "Fig1E_Exp_NFATC1_tissues_tbs1.pdf"),width=5,height = 7)
+DotPlot(object = tbs_v1_organs, features = "ENSG00000131196")+
+  scale_x_discrete(labels=c( "NFATC1"))+xlab("")+
+  theme(axis.text.x = element_text(face='italic', size=15))
 dev.off()
 
+
 # Plotting the expression of NFATC1 across all tissues with VEGFR1, VEGFR2 and MAPK1 (ERK)
-png(file.path(results_dir, "Fig1Dalt_Exp_NFATC1_VEGFR1_2_MAPK1_tissues_tbs1.png"),width=3000,height = 3500,res=600)
+png(file.path(results_dir, "TS_WB_endo_Exp_NFATC1_VEGFR1_2_MAPK1_tissues_tbs1.png"),width=3000,height = 3500,res=600)
 DotPlot(object = tbs_v1_organs, features = c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052", "ENSG00000100030" ))+
   scale_x_discrete(labels=c( "NFATC1", "VEGFR1", "VEGFR2", "MAPK1"))+xlab("")+
   theme(axis.text.x = element_text(face='italic', angle=45, hjust=1))
@@ -143,7 +169,7 @@ dev.off()
 ##Estimating cells expressing (or not) NFATC1
 exp<-data.frame(NFATC1=data_SKin2@assays$RNA$counts["ENSG00000131196",])
 exp<-exp%>%
-  mutate(Group=ifelse(NFATC1==0,"Endothelial cell NFATC1neg","Endothelial cell NFATC1+"))
+  mutate(Group=ifelse(NFATC1==0,"Skin Endothelial cells NFATC1neg","Skin Endothelial cells NFATC1pos"))
 table(exp$Group)
 # expressing NFATC1 No expressing NFATC1 
 # 510                  799 
@@ -158,12 +184,18 @@ logger::log_info("Plotting the expression of NFATC1, VEGFR1, VEGFR2 and MAPK1 (E
 #Plot  the expression NFATC1, VEGFR1, VEGFR2 and MAPK1 (ERK) FeaturePLot with NFATC1 and VEGFR2 VEGFR1
 # Relevant for proliferation
 # https://www.frontiersin.org/journals/cell-and-developmental-biology/articles/10.3389/fcell.2020.599281/full
-png(file.path(fig_dir, "FigN_TBS_skin_Endothelial_cells_by_NFATC_expgroup.png"),width=4500,height=3500,res=600)
+png(file.path(fig_dir, "Fig1H_TBS_skin_Endothelial_cells_by_NFATC_expgroup.png"),width=4500,height=3500,res=600)
 DotPlot(object = data_Skin3, features = c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052", "ENSG00000100030" ))+
   scale_x_discrete(labels=c( "NFATC1", "VEGFR1", "VEGFR2", "MAPK1"))+xlab("")+
   theme(axis.text.x = element_text(face='italic', angle=45, hjust=1))
 dev.off()
-png(file.path(results_dir, "TBS_skin_Endocells_DimPlot_by_NFATC1_expgroup.png"),width=6500,height=3000,res=600)
+pdf(file.path(fig_dir, "Fig1H_TBS_skin_Endothelial_cells_by_NFATC_expgroup.pdf"),width=7,height=6)
+DotPlot(object = data_Skin3, features = c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052", "ENSG00000100030" ))+
+  scale_x_discrete(labels=c( "NFATC1", "VEGFR1", "VEGFR2", "MAPK1"))+xlab("")+
+  theme(axis.text.x = element_text(face='italic', angle=45, hjust=1))
+dev.off()
+
+png(file.path(results_dir, "TBS_skin_Endocells_DimPlot_by_NFATC1_expgroup.png"),width=5500,height=3000,res=600)
 DimPlot(data_Skin3, reduction = "umap", group.by = "groups")+
   labs(title = "Tabula Sapiens (Skin)")
 dev.off()
@@ -217,8 +249,8 @@ write.table(dados[dados$row %in% c("ENSG00000131196", "ENSG00000102755", "ENSG00
           row.names=FALSE, quote=FALSE, sep="\t") ##Save the differential expression result
 
 ############ Volcano plot
-dados$log2FoldChange*-1 -> dados$log2FoldChange
-png(file.path(fig_dir, "Fig1E_VolcanoPlot_Tabula_endothelial.png"),width=4500,height = 3500,res=600)
+#dados$log2FoldChange*-1 -> dados$log2FoldChange
+png(file.path(fig_dir, "Fig1F_VolcanoPlot_Tabula_endothelial.png"),width=4500,height = 3500,res=600)
 EnhancedVolcano(dados,lab=dados$Symbol,y="padj",x="log2FoldChange",
                 pCutoff = 1e-50,
                 drawConnectors = T,
@@ -228,6 +260,17 @@ EnhancedVolcano(dados,lab=dados$Symbol,y="padj",x="log2FoldChange",
                 gridlines.major = FALSE,
                 legendPosition = "bottom")
 dev.off()
+pdf(file.path(fig_dir, "Fig1F_VolcanoPlot_Tabula_endothelial.pdf"),width=10,height = 7)
+EnhancedVolcano(dados,lab=dados$Symbol,y="padj",x="log2FoldChange",
+                pCutoff = 1e-50,
+                drawConnectors = T,
+                title = substitute(paste(italic('NFATC1+ vs. NFATC1-'), "(subset: endothelial cells)")),
+                subtitle = "p cutoff<1e-50 | FC cutoff > 2",
+                gridlines.minor = FALSE,
+                gridlines.major = FALSE,
+                legendPosition = "bottom")
+dev.off()
+
 
 
 ############ GSEA - Gene Set Enrichment Analysis
@@ -262,7 +305,7 @@ gse <- gseGO(geneList=gene_list,
 
 logger::log_info("Plotting the GSEA results")
 #Plotting the GSEA results 
-png(file.path(fig_dir, "Fig1F_TBS_skin_Endo_by_NFATC1_exp_gse_5reg_endothelial subset_BP.png"),width=2800,height = 2500,res=600)
+png(file.path(fig_dir, "Fig1G_TBS_skin_Endo_by_NFATC1_exp_gse_5reg_endothelial subset_BP.png"),width=2800,height = 2500,res=600)
 dotplot(gse, showCategory=5, split=".sign" ,color="pvalue") +
  facet_grid(.~.sign)+
  theme(text = element_text(size=15),
@@ -270,6 +313,15 @@ dotplot(gse, showCategory=5, split=".sign" ,color="pvalue") +
       axis.text.x = element_text(size=12,angle=90, hjust=1),
       axis.text.y = element_text(size=9,hjust=1))+xlim(c(0.35,0.55))
 dev.off()
+pdf(file.path(fig_dir, "Fig1G_TBS_skin_Endo_by_NFATC1_exp_gse_5reg_endothelial subset_BP.pdf"),width=4,height =5)
+dotplot(gse, showCategory=5, split=".sign" ,color="pvalue") +
+ facet_grid(.~.sign)+
+ theme(text = element_text(size=15),
+      panel.grid= element_blank(),
+      axis.text.x = element_text(size=12,angle=90, hjust=1),
+      axis.text.y = element_text(size=9,hjust=1))+xlim(c(0.35,0.55))
+dev.off()
+
 
 png(file.path(results_dir, "gse_20reg_endothelial subset_BP.png"),width=2500,height = 5200,res=600)
 dotplot(gse, showCategory=20, split=".sign") + facet_grid(.~.sign)+
