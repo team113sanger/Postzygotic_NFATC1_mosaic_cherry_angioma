@@ -1,14 +1,19 @@
 {
 	"name": "Dev",
-    "image": "mcr.microsoft.com/devcontainers/universal:2",
-	// Install Dev Container Features. More info: https://containers.dev/features
-	"features": {
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-		"ghcr.io/haukex/devcontainer-features/perl:1": {},
-        "ghcr.io/rocker-org/devcontainer-features/r-rig:1": {
-            "version": "4.3.3",
-            "installREnv": true}
+    "build": {
+        "dockerfile": "Dockerfile"
+	// "name": "Dev",
+    // "image": "mcr.microsoft.com/devcontainers/universal:2",
+	// // Install Dev Container Features. More info: https://containers.dev/features
+	// "features": {
+    //     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+	// 	"ghcr.io/haukex/devcontainer-features/perl:1": {},
+    //     "ghcr.io/rocker-org/devcontainer-features/r-rig:1": {
+    //         "version": "4.3.3",
+    //         "installREnv": true}
+    // },	
     },
+    "postCreateCommand": "R -e 'if (require(renv)) renv::restore() else install.packages(\"renv\"); renv::restore()'",
 	"customizations": {
 		"vscode": {
 			"extensions": ["mechatroner.rainbow-csv"

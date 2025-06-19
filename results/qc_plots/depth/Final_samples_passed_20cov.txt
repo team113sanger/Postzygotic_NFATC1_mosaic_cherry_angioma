@@ -1,0 +1,4 @@
+Sample	Coverage	Percent
+PD54368a	21+	88.19
+PD54368b	21+	91.54
+PD54368c	21+	92.55

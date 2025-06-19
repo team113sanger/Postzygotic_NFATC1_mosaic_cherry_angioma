@@ -10,8 +10,9 @@ The following software is required to be installed and visible in the path befor
 - **R**: R `4.3.3`[**here**](https://cran.r-project.org/)
 
 #### R packages and environment
-To restore the R environment used for the analysis this can be done using the `renv` package. All the dependencies are listed in the `renv.lock` file.  If you're interested in [reproducing the R environment using `renv`](https://rstudio.github.io/renv/reference/index.html) please follow the official documentation.
+To restore the R environment used for the analysis this can be done using the `renv` package. If you're interested in [reproducing the R environment using `renv`](https://rstudio.github.io/renv/reference/index.html) please follow the official documentation. All the dependencies and versions used are listed in the `renv.lock` file. 
 
+Example of how to restore the R environment using `renv`:
 ``` R
 install.packages("renv")
 library(renv)
@@ -19,7 +20,7 @@ renv::restore()
 ```
 
 ### Datasets used
-All the analysis were perfomed using the Tabula Sapiens dataset. The following datasets were used:
+All the analysis were performed using the Tabula Sapiens dataset. The following datasets were used:
 - **Tabula Sapiens - endothelial cells from different tissues dataset**: This dataset contains single-cell RNA sequencing data from various tissues and cell types. It can be downloaded from the [Tabula Sapiens website](https://tabula-sapiens.sf.czbiohub.org/) with dataset ID `4676160f-b0f6-4dea-a104-c2ef86c74674`. The dataset can be accessed directly using the following URL: [4676160f-b0f6-4dea-a104-c2ef86c74674.rds](https://datasets.cellxgene.cziscience.com/4676160f-b0f6-4dea-a104-c2ef86c74674.rds).
 - **Tabula Sapiens Skin dataset**: This dataset contains single-cell RNA sequencing data from skin tissue. It can be downloaded from the [Tabula Sapiens website](https://tabula-sapiens.sf.czbiohub.org/) with dataset ID `9405995f-b1c6-485c-8cc9-b80b9e870057`. The dataset can be accessed directly using the following URL: [9405995f-b1c6-485c-8cc9-b80b9e870057.rds](https://datasets.cellxgene.cziscience.com/9405995f-b1c6-485c-8cc9-b80b9e870057.rds).
 
