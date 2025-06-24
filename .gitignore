@@ -29,7 +29,7 @@ logs
 *.venv
 resources/ascat
 resources/baitset/*
-!resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed
+!resources/baitset/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
 !resources/caveman
 resources/dbsnp/*
 !resources/dbsnp/README_common_snps.txt
