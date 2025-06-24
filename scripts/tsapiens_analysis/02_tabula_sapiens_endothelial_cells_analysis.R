@@ -241,7 +241,7 @@ dados<-merge(dados,geneIDs1,by="row")
 logger::log_info("writing and plotting the differential expression results")
 #Writin the differentially expressed genes  
 write.csv(dados,file.path(results_dir,"DE_genes_by_NFATC1exp_results_Tidy.csv"), row.names=FALSE, quote=FALSE) ##Save the differential expression result
-write.csv(dados[,-2],file.path(results_dir, "Gene_List.csv"), row.names=FALSE, quote=FALSE) ##Saving diff expressed genes
+
 
 # Write a tbale with the DE results for NFATC1, VEGFR1, VEGFR2 and MAPK1 (ERK)
 write.table(dados[dados$row %in% c("ENSG00000131196", "ENSG00000102755", "ENSG00000128052", "ENSG00000100030" ),], 
