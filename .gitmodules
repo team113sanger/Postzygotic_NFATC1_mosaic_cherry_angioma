@@ -1,0 +1,4 @@
+[submodule "MesKit"]
+	path = 'scripts/MAF'
+	url = git@github.com:team113sanger/dermatlas_analysis_maf.git
+	branch = '0.6.4'
