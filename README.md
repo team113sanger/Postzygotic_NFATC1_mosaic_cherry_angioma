@@ -1,4 +1,3 @@
-# 2744_IVO_Cherry_angioma_WES
 # A post-zygotic disruptive germline _NFATC1_ variant in a patient with segmental cherry angiomas
 
 [![DOI]()]()
