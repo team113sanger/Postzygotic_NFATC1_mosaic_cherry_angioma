@@ -16,13 +16,12 @@ This repository contains a series of scripts that were used in generating the re
 
 ## Dependencies
 
-Users can reproduce the scripts bundled in this package by creating a Github codespace using the .devcontainer.json file that is bundled with these scripts. 
-
-This analysis was conducted within a development container with docker and R (4.3.3) installed (`.devcontainer/devcontainer.json`). All scripts can therefore be run in a Github codespace or Vscode session with docker available. All R dependencies for this project are detailed within the project `renv.lock` file and can be installed by running `renv::restore()` in a R terminal.
-
 ### Software dependencies
 
-Analyses were performed using a combination of R, Perl and shell scripts.
+Analyses were performed using a combination of R, Perl and shell scripts. 
+
+Analyses conducted with R can be reproduced in a development container with docker and R (4.3.3) installed (`.devcontainer/devcontainer.json`). All scripts can therefore be run in a Github codespace or Vscode session with docker available. All R dependencies for this project are detailed within the project `renv.lock` file and can be installed by running `renv::restore()` in a R terminal.
+
 
 - All R scripts were run using `R v4.3.3` and the package dependencies for each analysis are detailed within the `renv.lock`.  
 - Perl scripts were run using Perl version `v5.38.0`
@@ -38,6 +37,7 @@ Analyses were performed using a combination of R, Perl and shell scripts.
 - The repositories with the scripts used for variant QC and VCF to MAF conversion can be found in the following links:
     - [**QC**](https://github.com/team113sanger/dermatlas_analysis_qc) `v0.5.2`
     - [**MAF**](https://github.com/team113sanger/dermatlas_analysis_maf) `v0.6.4` 
+
 
 
 ## Contact 
