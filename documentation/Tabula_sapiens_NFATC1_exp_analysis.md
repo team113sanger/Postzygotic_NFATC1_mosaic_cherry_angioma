@@ -26,10 +26,10 @@ All the analysis were performed using the Tabula Sapiens dataset. The following 
 
 ## Analysis and figures reproduction
 
-To run the analysis of **_NFATC1_** expression in endothelial cells run the following R script:
+To run the analysis of **_NFATC1_** expression in endothelial cells run the following R script found on the `scripts/tsapiens_analysis` of the current repository directory:
 
 ``` bash
-Rscript 02_tabula_sapiens_endothelial_cells_analysis.R
+Rscript scripts/tsapiens_analysis/04_tabula_sapiens_endothelial_cells_analysis.R
 ```
 This script will download the required datasets, perform _NFATC1_ expression analysis, and generate the figures. The results will be saved in the `results/figures` directory.
 

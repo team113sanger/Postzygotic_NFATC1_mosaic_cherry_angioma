@@ -27,6 +27,8 @@ logs
 
 # Ignore dot env
 *.venv
+
+# Ignore resources folder
 resources/ascat
 resources/baitset
 resources/baitset
@@ -60,16 +62,8 @@ resources/music2
 resources/pindel/*
 !resources/pindel/WXS_Rules.lst
 
-
-
-
-
-
-#Reference generation scripts
-
-# Singularity images 
-*.sif
-
+# Ignore data_release folder
+data_release
 
 #Ignore base_dir
 base_dir

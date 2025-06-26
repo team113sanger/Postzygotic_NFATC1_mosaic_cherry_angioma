@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 #Get the current working directory
-here::i_am("scripts/tsapiens_analysis/02_tabula_sapiens_endothelial_cells_analysis.R")
+here::i_am("scripts/tsapiens_analysis/04_tabula_sapiens_endothelial_cells_analysis.R")
 # Tabula Sapiens - Skin analysis
 
 library(here)
