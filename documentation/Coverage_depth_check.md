@@ -10,6 +10,7 @@ Samples with a coverage depth of >20X coverage across at least 80% of the baits 
 
 ## Required software
 
+- Perl scripts were run using Perl version `v5.38.0`[**here**](https://www.perl.org/)
 - `CrossMap` version `0.5.4>` [**here**](http://crossmap.sourceforge.net/)
 
 ### Required data

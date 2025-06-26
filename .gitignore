@@ -28,9 +28,26 @@ logs
 # Ignore dot env
 *.venv
 resources/ascat
-resources/baitset/*
-!resources/baitset/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
-!resources/caveman
+resources/baitset
+resources/baitset
+resources/CHANGELOG.md
+resources/clinvar
+resources/COSMIC
+resources/dndscv
+resources/germline
+resources/giab
+resources/gistic2
+resources/gnomad
+resources/GRCh38_full.fasta
+resources/GRCh38_full.fasta.fai
+resources/music2
+resources/oncodrivefml
+resources/oncokb
+resources/README.md
+resources/signal
+resources/sparki
+resources/tumour-only
+resources/ucsc
 resources/dbsnp/*
 !resources/dbsnp/README_common_snps.txt
 !resources/dbsnp/addheader.txt
@@ -42,11 +59,8 @@ resources/gistic
 resources/music2
 resources/pindel/*
 !resources/pindel/WXS_Rules.lst
-resources/Signal
-resources/ucsc
-resources/dndscv
-resources/COSMIC/*
-!resources/COSMIC/OMM2.5_mutated_cancer_gene_census.v97.genes_names.tsv
+
+
 
 
 
