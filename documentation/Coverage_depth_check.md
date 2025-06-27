@@ -25,46 +25,61 @@ The scripts used for this analysis are located in the `scripts/coverage_qc` dire
 
 The Coverage Depth analysis was run under internal cluster environment with **Ubuntu 22.04** and **LSF job execution**. It is required to replace the `PROJECTDIR` shell environment variable with the path of where the current repository was downloaded. 
 
-- To make a copy Links to the bam files I ran the following 
+### Download BAM files 
+
+- BAM files are available for Download from EGA repository [**here**](https://ega-archive.org/datasets/EGAD00001008664). 
+
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-cp -L /nfs/cancer_ref01/nst_links/live/2744/*/*.sample.dupmarked.bam ${PROJECTDIR}/BAMS/
-#Then to Copy the indexes I ran the following
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-cp -L /nfs/cancer_ref01/nst_links/live/2744/*/*.sample.dupmarked.bam.bai ${PROJECTDIR}/BAMS/
+
 ```
-### To make a directory to store the results of the coverage depth analysis
+### Calculate depth of coverage
 
-- To make a job array to calculate the depth with Samtools 
+To make a job array to calculate the depth of coverage for each sample across the baitset coordinates we ran the following commands:
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
+BAITSET=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
 
-mkdir -p ${PROJECTDIR}/results/qc_plots/depth
+mkdir -p ${RESULTSDIR}
 mkdir -p ${PROJECTDIR}/logs/depth
-cd ${PROJECTDIR}/results/qc_plots/depth
+
+cd ${RESULTSDIR}
 #To create the sample list file 
 ls -1 ${PROJECTDIR}/BAMS/*.bam >sample_bams.fofn
 ls -1 ${PROJECTDIR}/BAMS/*.bam | cut -f 9 -d "/" | sed 's/\.sample\.dupmarked\.bam//' >sample.list
 #To create the jobs for submission of sample depth calculation
-for f in `cat sample.list`; do bsub -e ${PROJECTDIR}/logs/depth/depth.$f.e -o ${PROJECTDIR}/logs/depth/depth.$f.o -n 2 -M2000 -R"select[mem>2000] rusage[mem=2000]" "module load samtools/1.14; samtools depth -a -b ${PROJECTDIR}/required_datasets/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed -o $f.depth.tsv -J -s -@ 2 ${PROJECTDIR}/BAMS/$f.sample.dupmarked.bam"; done
-
+for f in `cat sample.list`; do bsub -e ${PROJECTDIR}/logs/depth/depth.${f}.e -o ${PROJECTDIR}/logs/depth/depth.${f}.o -n 2 -M2000 -R"select[mem>2000] rusage[mem=2000]" "samtools depth -a -b ${BAITSET} -o ${f}.depth.tsv -J -s -@ 2 ${PROJECTDIR}/BAMS/${f}.sample.dupmarked.bam"; done
 ```
-- Then to  summarise the coverage stats per sample
+OUTPUT : `${f}.depth.tsv` files for each sample containing 
+
+Subsequently to generate the summaries of the proportion of bases covered with at least a given coverage threshold in steps of 10X, the following commands were run:
 
 ```bash
-mkdir -p ${PROJECTDIR}/scripts
-cp /lustre/scratch119/casm/team113da/projects/6500_DERMATLAS_SG_basal_cell_adenoma_and_adenocarcinoma_WES/SCRIPTS/DEPTH/* ${PROJECTDIR}/scripts
-cd ${PROJECTDIR}/qc_plots/depth
-for f in `cat sample.list`; do bsub -e ${PROJECTDIR}/logs/depth/count.$f.e -o ${PROJECTDIR}/logs/depth/count.$f.o -M2000 -R"select[mem>2000] rusage[mem=2000]" -q small "${PROJECTDIR}/scripts/count_region_coverage.pl $f.depth.tsv > $f.covstats.tsv"; done
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
+DPSCRIPTDIR=${PROJECTDIR}/scripts/coverage_qc
+
+cd ${RESULTSDIR}
+
+for f in `cat sample.list`; do bsub -e ${PROJECTDIR}/logs/depth/count.${f}.e -o ${PROJECTDIR}/logs/depth/count.${f}.o -M2000 -R"select[mem>2000] rusage[mem=2000]" -q small "${DPSCRIPTDIR}/count_region_coverage.pl ${f}.depth.tsv > ${f}.covstats.tsv"; done
 ```
+OUTPUT : `${f}.covstats.tsv` files for each sample containing the coverage depth statistics for each sample at 10X intervals from 11+(>10X) to 121+.
+
 -Then to summarise the coverage stats per cohort
-```bash
-#Togenerate the cov_stats summary for the cohort
 
+```bash
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
+DPSCRIPTDIR=${PROJECTDIR}/scripts/coverage_qc
+#Togenerate the cov_stats summary for the cohort
+cd ${RESULTSDIR}
 #Get the header from the first file
-for f in `ls -1 *.covstats.tsv | head -n1`; do head -n1 $f | sed 's/^11/Sample\t11/' >cov_stats_summary.tsv; done
+for f in `ls -1 *.covstats.tsv | head -n1`; do head -n1 ${f} | sed 's/^11/Sample\t11/' >cov_stats_summary.tsv; done
 grep -v Mean *stats.tsv | sed 's/.covstats.tsv:/\t/' >> cov_stats_summary.tsv
 
-Rscript scripts/coverage_qc/02_plot_cov_stats_summary_sortByMeanCov_mod.R
+# Generate the tables and plots for the coverage stats summary
+cd ${PROJECTDIR}
+Rscript ${DPSCRIPTDIR}/02_plot_cov_stats_summary_sortByMeanCov_mod.R
 ```
