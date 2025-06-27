@@ -8,7 +8,7 @@ All the scripts and code mentioned below can be found in the `scripts` directory
 
 ## Sample Pairs used for somatic calling 
 
-The list of sample pairs used for variant calling using the somatic callers can be found in the file [`metadata/7688-biosample-manifest-completed.tsv`](../metadata/7688-biosample-manifest-completed.tsv). Uninfected and Cas9_WT samples were used as normal samples for the somatic calling of SW837 and OMM2.5 grafts respectively.
+The list of sample pairs used for variant calling using the somatic callers can be found in the file [`metadata/8117-biosample_manifest-completed.tsv`](../metadata/8117-biosample_manifest-completed.tsv). Uninfected and Cas9_WT samples were used as normal samples for the somatic calling of SW837 and OMM2.5 grafts respectively.
  
 
 ## Required Environment variables and software
