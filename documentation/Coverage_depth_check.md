@@ -2,7 +2,7 @@
 
 ## Overview
 
-To analyse the evenness of coverage depth of the samples, we used a file that contained the coordinates of the baits used for exome capture. Coordinates from hg19 were lifovered to GRCh38. Following this, coverage observed was performed using `samtools depth` command to calculate the coverage depth of each sample. The output was then processed to generate a summary of the coverage depth across all samples.
+To analyse the evenness of coverage depth of the samples, we used a file that contained the coordinates of the baits used for exome capture. Coordinates from hg19 were converted to GRCh38 coordinates. Following this, coverage observed was performed using `samtools depth` command to calculate the coverage depth of each sample. The output was then processed to generate a summary of the coverage depth across all samples.
 
 Samples with a coverage depth of **>20X across at least 80% of the baits** used were considered for somatic variant calling. 
 
@@ -23,7 +23,7 @@ The scripts used for this analysis are located in the `scripts/coverage_qc` dire
 
 ## Coverage Depth analysis
 
-The Coverage Depth analysis was run under internal cluster environment with **Ubuntu 22.04** and **LSF job execution**. It is required to replace the `PROJECTDIR` shell environment variable with the path of where the current repository was downloaded. 
+The Coverage Depth analysis was run under a cluster environment with **Ubuntu 22.04** and **LSF job execution**. It is required to replace the `PROJECTDIR` shell environment variable with the path of where the current repository was downloaded. 
 
 ### Download BAM files 
 
@@ -31,6 +31,14 @@ BAM files are available for Download from EGA repository with Study Accession ID
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+BAMDIR=${PROJECTDIR}/BAMS
+mkdir -p ${BAMDIR}
+# Download BAM files from EGA repository with Study Accession ID EGAS00001008212
+# The BAM files should be named as <sample_name>.sample.dupmarked.bam,
+# where <sample_name> is the name of the sample.
+# For example, for sample 2744, the BAM file should be named 2744.sample.dupmarked.bam
+# The following command is an example of how to download the BAM files using `wget`:
+wget -P ${BAMDIR} ftp://ftp.ebi.ac.uk/pub/databases/ega/analysis/EGAD00001008212/BAMS/
 
 ```
 
@@ -88,5 +96,6 @@ The outputs of the above script will be located in the `results/qc_plots/depth` 
 
 - `cov_stats_summary.tsv`: file containing the coverage depth statistics for each sample at 10X intervals from 11+(>10X) to 121+
 - `summary_cov_stats_ordered.png`: Plot showing the coverage depth statistics for each sample with samples on the Y-axis and proportion of bases within the bait regions with X coverage at given coverage depth intervals, from 11+ to 121+ on the X-axis. Text on the plot indicates the highest interval of coverage depth at which the sample has at least 80% of the bases covered. 
+- `Final_cov_stats_summary.tsv`: file containing the list of samples that passed the coverage depth QC, i.e., samples with at least 80% of the bases covered at 20X (21+ or above).
 
 Samples with at least 80% of the bases covered at 20X (21+ or above) passed the coverage depth QC and were considered for somatic variant calling.

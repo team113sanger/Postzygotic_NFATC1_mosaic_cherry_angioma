@@ -10,8 +10,9 @@ This repository serves as the contains the code for the mulitple analyses relate
 
 This repository contains a series of scripts that were used in generating the results and figures for the manuscript. The analysis is divided into several sections, each corresponding to a specific aspect of the study. These are:
 
-- **Variant calling and annotation**: This section includes the scripts used for variant calling from whole exome sequencing data. It includes the generation of VCF files and the filtering of variants based on various criteria. See [README](documentation/Somatic_Variant_calling.md) file in the `documentation` folder for more details on how to reproduce the analysis.
-- **Assessment of _NFATC1_ expression on endothelial cells**: This section looks at the expression of _NFATC1_ in endothelial cells across organs, annotated cells on the skin dataset and  differential expression analysis between Endothelial cells on the skin by _NFATC1_ expression from the _Tabula Sapiens_ single cell datasets.  It includes the analyses and the generation of relevant plots for the figures. To reproduce the analysis, please refer to the [README](documentation/Tabula_sapiens_NFATC1_exp_analysis.md) file in the `documentation` folder.
+- **Coverage depth QC analysis**: This section includes the scripts used for the analysis of the coverage depths across the pulled regions. filtering of samples based on coverage depth. See [README](./documentation/Coverage_depth_check.md) file in the `documentation` folder for more details on how to reproduce the analysis.
+- **Variant calling and annotation**: This section includes the scripts used for variant calling from whole exome sequencing data. It includes the generation of VCF files and the filtering of variants based on various criteria. See [README](./documentation/Somatic_Variant_calling.md) file in the `documentation` folder for more details on how to reproduce the analysis.
+- **Assessment of _NFATC1_ expression on endothelial cells**: This section looks at the expression of _NFATC1_ in endothelial cells across organs, annotated cells on the skin dataset and  differential expression analysis between Endothelial cells on the skin by _NFATC1_ expression from the _Tabula Sapiens_ single cell datasets.  It includes the analyses and the generation of relevant plots for the figures. To reproduce the analysis, please refer to the [README](./documentation/Tabula_sapiens_NFATC1_exp_analysis.md) file in the `documentation` folder.
 
 
 ## Dependencies
@@ -33,10 +34,9 @@ Analyses conducted with R can be reproduced in a development container with dock
   - `cgpCaVEManwrapper` version `1.17.2` [**here**](https://github.com/cancerit/cgpCaVEManWrapper)
   - `cgpPindel` version `3.5.0` [**here**](https://github.com/cancerit/cgpPindel)
   - ENSEMBL VEP version `103`[**here**](http://feb2021.archive.ensembl.org/info/docs/tools/vep/index.html)
-- The repositories with the scripts used for variant QC and VCF to MAF conversion can be found in the following links:
+- The repositories with the scripts used for variant QC and VCF to MAF conversion can be found in the following links and are added as submodules in this repository:
     - [**QC**](https://github.com/team113sanger/dermatlas_analysis_qc) `v0.5.2`
     - [**MAF**](https://github.com/team113sanger/dermatlas_analysis_maf) `v0.6.4` 
-
 
 
 ## Contact 
