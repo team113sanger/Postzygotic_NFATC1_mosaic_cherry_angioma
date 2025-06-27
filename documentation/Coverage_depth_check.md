@@ -16,10 +16,17 @@ The scripts used for this analysis are located in the `scripts/coverage_qc` dire
 - `LifOver` [**here**](https://genome.ucsc.edu/cgi-bin/hgLiftOver)
 - `samtools` version `1.14` [**here**](https://www.htslib.org/)
 - `R` version `4.3.3` [**here**](https://www.r-project.org/)
+- `bwa-mem` version `0.7.17` [**here**](https://github.com/lh3/bwa)
+- `biobambam2` version `2.0.146` [**here**](https://github.com/gt1/biobambam2)
 
 ### Required datasets
 
 - The bait set used for the exome capture was the Agilent SureSelect Human All Exon V6+UTR, the file was obtained from Agilent (file S07604624_hs_hg19.zip). Coordinates for GRCh38 were obtained by performing a liftover from hg19 to GRCh38 coordinates using [`LifOver`](https://genome.ucsc.edu/cgi-bin/hgLiftOver). See file [`resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed`](resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed) 
+
+## Data alignment and processing
+
+The WES sequencing data was aligned to the GRCh38 Human reference genome using `bwa-mem` version `0.7.17` [**here**](https://github.com/lh3/bwa). PCR duplicates were marked using `bammarkduplicates2` from biobambam2 version `2.0.146`[**here**](https://github.com/gt1/biobambam2). The same process was applied for all samples and done through an internal pipeline.
+
 
 ## Coverage Depth analysis
 

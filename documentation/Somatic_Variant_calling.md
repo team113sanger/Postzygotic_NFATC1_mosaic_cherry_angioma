@@ -1,14 +1,10 @@
-# Somatic calling of the samples
+# Somatic variant calling 
 
 ## Overview
 
 This document describes the steps taken to identify somatic single nucleotide variants (SNVs) and short INDEL mutations present on whole exome of samples obtained. This was done using CaVEMAN and Pindel.  All samples were checked for eveness of coveragte before the variant calling was perfomed (see [documentation/Coverage_depth_check.md](./Coverage_depth_check.md)). 
 
 All the scripts and code mentioned below can be found in the `scripts` directory.
-
-## Variant identification using somatic callers to the Human GRCh38 reference genome 
-
-The WES sequencing data was aligned to the GRCh38 Human reference genome using `bwa-mem`. PCR duplicates were marked using `samtools markdup` function. The same process was applied for all the samples. This process was preformed through an internal pipeline.
 
 ## Sample Pairs used for somatic calling 
 
