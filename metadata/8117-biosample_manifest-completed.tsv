@@ -1,0 +1,3 @@
+PDID	Biosample	Tumour Sample	Normal Sample	OK to analyse DNA?	Comments	Submit to Canpipe?	Use for analysis?	Biosample QC	Tumour Sample QC	Normal Sample QC	Coverage (Tumour)	Coverage (Normal)
+PD54368	PD54368a-PD54368b	PD54368a	PD54368b	Yes		Y	Y	PASS	PASS	PASS	21+ (PASS)	21+ (PASS)
+PD54368	PD54368b-PD54368b	PD54368b	PD54368c	Yes		Y	Y	PASS	PASS	PASS	21+ (PASS)	21+ (PASS)
