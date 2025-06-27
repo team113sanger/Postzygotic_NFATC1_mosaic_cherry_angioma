@@ -2,11 +2,9 @@
 
 ## Overview
 
-This document describes the steps taken to identify SNV and Indel mutations present on whole exome of samples obtained. All samples were checked for eveness of coveragte before the variant calling was perfomed (see [documentation/Coverage_depth_check.md](./Coverage_depth_check.md)). 
+This document describes the steps taken to identify somatic single nucleotide variants (SNVs) and short INDEL mutations present on whole exome of samples obtained. This was done using CaVEMAN and Pindel.  All samples were checked for eveness of coveragte before the variant calling was perfomed (see [documentation/Coverage_depth_check.md](./Coverage_depth_check.md)). 
 
 All the scripts and code mentioned below can be found in the `scripts` directory.
-
-
 
 ## Variant identification using somatic callers to the Human GRCh38 reference genome 
 
