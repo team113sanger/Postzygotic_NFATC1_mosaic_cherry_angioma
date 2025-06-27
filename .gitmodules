@@ -1,6 +1,6 @@
 [submodule "MAF"]
-	path = 'scripts/MAF'
+	path = scripts/MAF
 	url = git@github.com:team113sanger/dermatlas_analysis_maf.git
 [submodule "QC"]
-	path = 'scripts/QC'
+	path = scripts/QC
 	url = git@github.com:team113sanger/dermatlas_analysis_qc.git
