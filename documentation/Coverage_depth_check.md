@@ -27,19 +27,13 @@ The Coverage Depth analysis was run under a cluster environment with **Ubuntu 22
 
 ### Download BAM files 
 
-BAM files are available for Download from EGA repository with Study Accession ID **EGAS00001008212**, EGA website [*here**](https://ega-archive.org/). Sample BAM files should be downloaded and placed in the `BAMS` directory under the `PROJECTDIR`. The BAM files should be named as `<sample_name>.sample.dupmarked.bam`, where `<sample_name>` is the name of the sample.
+BAM files are available for Download from EGA repository with Study Accession ID **EGAS00001008212**, EGA website [*here**](https://ega-archive.org/).  The BAM files should be named as `<sample_name>.sample.dupmarked.bam`, where `<sample_name>` is the name of the sample. Follow EGA procedure to get access to the data.  Sample BAM files should be downloaded and placed in the `BAMS` directory under the `PROJECTDIR`.
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 BAMDIR=${PROJECTDIR}/BAMS
 mkdir -p ${BAMDIR}
-# Download BAM files from EGA repository with Study Accession ID EGAS00001008212
-# The BAM files should be named as <sample_name>.sample.dupmarked.bam,
-# where <sample_name> is the name of the sample.
-# For example, for sample 2744, the BAM file should be named 2744.sample.dupmarked.bam
-# The following command is an example of how to download the BAM files using `wget`:
-wget -P ${BAMDIR} ftp://ftp.ebi.ac.uk/pub/databases/ega/analysis/EGAD00001008212/BAMS/
-
+# Download BAM files from EGA repository here
 ```
 
 ### Calculate depth of coverage
@@ -47,41 +41,43 @@ wget -P ${BAMDIR} ftp://ftp.ebi.ac.uk/pub/databases/ega/analysis/EGAD00001008212
 To make a job array to calculate the depth of coverage for each sample across the baitset coordinates we ran the following commands:
 
 ```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
-BAITSET=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
+export PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+export RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
+export BAITSET=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
+export LOGDIR=${PROJECTDIR}/logs/depth
 
 mkdir -p ${RESULTSDIR}
-mkdir -p ${PROJECTDIR}/logs/depth
+mkdir -p ${LOGDIR}
 
 cd ${RESULTSDIR}
 #To create the sample list file 
 ls -1 ${PROJECTDIR}/BAMS/*.bam >sample_bams.fofn
 ls -1 ${PROJECTDIR}/BAMS/*.bam | cut -f 9 -d "/" | sed 's/\.sample\.dupmarked\.bam//' >sample.list
 #To create the jobs for submission of sample depth calculation
-for f in `cat sample.list`; do bsub -e ${PROJECTDIR}/logs/depth/depth.${f}.e -o ${PROJECTDIR}/logs/depth/depth.${f}.o -n 2 -M2000 -R"select[mem>2000] rusage[mem=2000]" "samtools depth -a -b ${BAITSET} -o ${f}.depth.tsv -J -s -@ 2 ${PROJECTDIR}/BAMS/${f}.sample.dupmarked.bam"; done
+for f in `cat sample.list`; do bsub -e ${LOGDIR}/depth.${f}.e -o ${LOGDIR}/depth.${f}.o -n 2 -M2000 -R"select[mem>2000] rusage[mem=2000]" "samtools depth -a -b ${BAITSET} -o ${f}.depth.tsv -J -s -@ 2 ${PROJECTDIR}/BAMS/${f}.sample.dupmarked.bam"; done
 ```
 OUTPUT : `${f}.depth.tsv` files for each sample containing 
 
 Subsequently to generate the summaries of the proportion of bases covered with at least a given coverage threshold in steps of 10X, the following commands were run:
 
 ```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
-DPSCRIPTDIR=${PROJECTDIR}/scripts/coverage_qc
+export PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+export RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
+export DPSCRIPTDIR=${PROJECTDIR}/scripts/coverage_qc
+export LOGDIR=${PROJECTDIR}/logs/depth
 
 cd ${RESULTSDIR}
 
-for f in `cat sample.list`; do bsub -e ${PROJECTDIR}/logs/depth/count.${f}.e -o ${PROJECTDIR}/logs/depth/count.${f}.o -M2000 -R"select[mem>2000] rusage[mem=2000]" -q small "${DPSCRIPTDIR}/count_region_coverage.pl ${f}.depth.tsv > ${f}.covstats.tsv"; done
+for f in `cat sample.list`; do bsub -e ${LOGDIR}/count.${f}.e -o ${LOGDIR}/count.${f}.o -M2000 -R"select[mem>2000] rusage[mem=2000]" -q small "${DPSCRIPTDIR}/count_region_coverage.pl ${f}.depth.tsv > ${f}.covstats.tsv"; done
 ```
 OUTPUT : `${f}.covstats.tsv` files for each sample containing the coverage depth statistics for each sample at 10X intervals from 11+(>10X) to 121+.
 
 - Then to summarise the coverage stats per cohort
 
 ```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
-DPSCRIPTDIR=${PROJECTDIR}/scripts/coverage_qc
+export PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+export RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
+export DPSCRIPTDIR=${PROJECTDIR}/scripts/coverage_qc
 #Togenerate the cov_stats summary for the cohort
 cd ${RESULTSDIR}
 #Get the header from the first file
