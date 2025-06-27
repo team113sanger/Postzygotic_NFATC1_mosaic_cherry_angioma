@@ -1,1 +1,0 @@
-../../../resources/dermatlas/README.md
