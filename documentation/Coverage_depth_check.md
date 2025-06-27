@@ -68,7 +68,7 @@ for f in `cat sample.list`; do bsub -e ${PROJECTDIR}/logs/depth/count.${f}.e -o 
 ```
 OUTPUT : `${f}.covstats.tsv` files for each sample containing the coverage depth statistics for each sample at 10X intervals from 11+(>10X) to 121+.
 
--Then to summarise the coverage stats per cohort
+- Then to summarise the coverage stats per cohort
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
@@ -87,4 +87,6 @@ Rscript ${DPSCRIPTDIR}/02_plot_cov_stats_summary_sortByMeanCov_mod.R
 The outputs of the above script will be located in the `results/qc_plots/depth` directory. The script will generate the following files:
 
 - `cov_stats_summary.tsv`: file containing the coverage depth statistics for each sample at 10X intervals from 11+(>10X) to 121+
-- `summary_cov_stats_ordered.png`: showing the coverage depth statistics for each sample sorted by mean coverage depth.
+- `summary_cov_stats_ordered.png`: Plot showing the coverage depth statistics for each sample with samples on the Y-axis and proportion of bases within the bait regions with X coverage at given coverage depth intervals, from 11+ to 121+ on the X-axis. Text on the plot indicates the highest interval of coverage depth at which the sample has at least 80% of the bases covered. 
+
+Samples with at least 80% of the bases covered at 20X (21+ or above) passed the coverage depth QC and were considered for somatic variant calling.
