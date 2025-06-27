@@ -27,12 +27,13 @@ The Coverage Depth analysis was run under internal cluster environment with **Ub
 
 ### Download BAM files 
 
-- BAM files are available for Download from EGA repository [**here**](https://ega-archive.org/datasets/EGAD00001008664). 
+BAM files are available for Download from EGA repository with Study Accession ID **EGAS00001008212**, EGA website [*here**](https://ega-archive.org/). Sample BAM files should be downloaded and placed in the `BAMS` directory under the `PROJECTDIR`. The BAM files should be named as `<sample_name>.sample.dupmarked.bam`, where `<sample_name>` is the name of the sample.
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 
 ```
+
 ### Calculate depth of coverage
 
 To make a job array to calculate the depth of coverage for each sample across the baitset coordinates we ran the following commands:
