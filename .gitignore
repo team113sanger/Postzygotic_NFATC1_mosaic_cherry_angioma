@@ -51,8 +51,8 @@ resources/sparki
 resources/tumour-only
 resources/ucsc
 resources/dbsnp/*
+!resources/dbsnp/addheader.txt
 #!resources/dbsnp/README_common_snps.txt
-#!resources/dbsnp/addheader.txt
 resources/ensembl/*
 !resources/ensembl/dermatlas_noncanonical_transcripts_ens103.tsv
 resources/germline

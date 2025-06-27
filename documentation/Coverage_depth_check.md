@@ -84,3 +84,7 @@ grep -v Mean *stats.tsv | sed 's/.covstats.tsv:/\t/' >> cov_stats_summary.tsv
 cd ${PROJECTDIR}
 Rscript ${DPSCRIPTDIR}/02_plot_cov_stats_summary_sortByMeanCov_mod.R
 ```
+The outputs of the above script will be located in the `results/qc_plots/depth` directory. The script will generate the following files:
+
+- `cov_stats_summary.tsv`: file containing the coverage depth statistics for each sample at 10X intervals from 11+(>10X) to 121+
+- `summary_cov_stats_ordered.png`: showing the coverage depth statistics for each sample sorted by mean coverage depth.

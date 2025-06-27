@@ -18,16 +18,16 @@ qcdir<-file.path(projdir, "results", "qc_plots", "depth")
 
 setwd(projdir)
 #Read the list of sample names within the project and folder
-slist<-read.csv(file = file.path(projdir, "sample.list"), header = F, stringsAsFactors = F, sep="\t")
+slist<-read.csv(file = file.path(qcdir, "sample.list"), header = F, stringsAsFactors = F, sep="\t")
 slist<-slist$V1
 
 #Read the header for the coverage depth from the stats summary file 
-header<-read.csv(file = file.path(projdir, "cov_stats_summary.tsv"), header = F, stringsAsFactors = F, sep="\t")
+header<-read.csv(file = file.path(qcdir, "cov_stats_summary.tsv"), header = F, stringsAsFactors = F, sep="\t")
 header<-header[1,]
 data<-NULL
 i<-NULL
 for (i in 1:length(slist)){
-    temp<-read.csv(file = file.path(projdir, paste(slist[i], ".covstats.tsv", sep="")), header = F, stringsAsFactors = F, sep="\t")
+    temp<-read.csv(file = file.path(qcdir, paste(slist[i], ".covstats.tsv", sep="")), header = F, stringsAsFactors = F, sep="\t")
     data<-rbind(data, c(as.vector(t(temp[2,]))))  
 }
 data<-cbind(slist,data)
@@ -98,7 +98,7 @@ mean_cov_plot<-ggplot(data2.melt, aes(Variable, Sample, fill=Coverage)) + geom_t
   geom_text(aes(label=Coverage)) + 
   theme(axis.title=element_blank(), axis.text.y=element_blank(), axis.ticks=element_blank(), axis.text=element_text(size=12))
 
-png(file.path(projdir, "summary_cov_stats_ordered.png"), width=800, height=1000)
+png(file.path(qcdir, "summary_cov_stats_ordered.png"), width=800, height=1000)
 plot_grid(plot, mean_cov_plot, align = "h", rel_widths = c(5,1))
 dev.off()
 
@@ -109,5 +109,5 @@ samp_20cov<-data1.melt[data1.melt$Coverage=="21+", ]
 
 #Add the information 
 samp_20cov_final<-samp_20cov[ samp_20cov$Percent>79.99, ]
-write.table(samp_20cov_final, file = file.path(projdir, "Final_samples_passed_20cov.txt"), quote = F, col.names = T, row.names = F, sep="\t")
+write.table(samp_20cov_final, file = file.path(qcdir, "Final_samples_passed_20cov.txt"), quote = F, col.names = T, row.names = F, sep="\t")
 
