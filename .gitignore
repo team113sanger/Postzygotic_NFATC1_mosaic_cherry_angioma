@@ -77,7 +77,7 @@ analysis/
 !analysis/variants_combined/
 analysis/variants_combined/*
 !analysis/variants_combined/version1/
-!analysis/variants_combined/version1/**
+!analysis/variants_combined/version1/README.md
 
 
 
