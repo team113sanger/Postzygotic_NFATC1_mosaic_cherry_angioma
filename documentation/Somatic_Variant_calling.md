@@ -10,22 +10,11 @@ All the scripts and code mentioned below can be found in the `scripts` directory
 
 Files with the MAF file contatinin the summary of the results of the variant calling can be found in Figshare Project [here](https://figshare.com/projects/A_post-zygotic_disruptive_germline_NFATC1_variant_in_a_patient_with_segmental_cherry_angiomas/254267). 
 
-The files can be downloaded for plotting :
-
-```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-mkdir -p ${PROJECTDIR}/analysis/variants_combined/version1
-
-curl -k -o bundle.zip  https://figshare.com/ndownloader/articles/29437103/versions/1
-unzip bundle.zip
-```
 
 ## Sample Pairs used for somatic calling 
 
 The list of sample pairs used for variant calling using the somatic callers can be found in the file [`metadata/8117-biosample_manifest-completed.tsv`](../metadata/8117-biosample_manifest-completed.tsv). 
  
-
-
 ## Required Environment variables and software
 
 The following software is required to be installed and visible in the path before running the scripts:
@@ -603,7 +592,7 @@ The script outputs a list of MAF files and plots however relevant file for the n
 ## Plot the Variants obtained from the MAF files
 
 
+**NOTE** If none of the other steps were run and you want to plot the variants from the MAF files, follow the steps below specified in the [`README.md`](../analysis/variants_combined/version1/README.md) file inside the `analysis/variants_combined/version1` directory. To get the MAF files from FigShare. 
 
-```bash
-https://figshare.com/ndownloader/articles/29416421
+
 
