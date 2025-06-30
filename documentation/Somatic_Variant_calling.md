@@ -591,6 +591,104 @@ The script outputs a list of MAF files and plots however relevant file for the n
 - [`analysis/variants_combined/version2/all/keep_caveman_pindel_all.maf`](../analysis/variants_combined/version2/all/keep_caveman_pindel_all.maf)
 
 
+## Variant Filtering:
+
+-Adding annotations for dbSNP155 common variants  - CavEMan
+```bash
+PROJECTDIR=/lustre/scratch125/casm/teams/team113/projects/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+#It requires the canapps project ID instead
+PROJECT=2744
+cd ${PROJECTDIR}/analysis
+
+BEDFILE=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
+source ${PROJECTDIR}/scripts/QC/source_me.sh
+
+cd ${PROJECTDIR}/analysis/caveman_files
+# First get the on-target PASS variants from the CaVEMan file copied from nst_links (*smartphase.vep.vcf.gz)
+# The output is *smartphase.vep.filt.vcf.gz
+
+for f in */*.caveman_c.vep.vcf.gz; do nice -n 5 bash ${PROJECTDIR:?unset}/scripts/QC/select_vcf_pass_ontarget.sh ${f} ${BEDFILE:?unset}; done
+
+# Now add dbSNP common annotations to the filtered VCF from above
+for f in `dir -1 |grep PD`; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.sh -p $PROJECTDIR -o ./$f -v $f/$f.caveman_c.vep.filt.vcf.gz; done
+ 
+# This creates *snpflagged.vcf.gz files.
+```
+
+- Adding annotations for dbSNP155 common variants  - Pindel
+
+```bash
+PROJECTDIR=/lustre/scratch125/casm/teams/team113/projects/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+#It requires the canapps project ID instead
+PROJECT=2744
+cd ${PROJECTDIR}/analysis
+
+# First get the on-target PASS variants from the Pindel files copied (*pindel.vep.vcf.gz)
+# The output is *pindel.vep.filt.vcf.gz
+BEDFILE=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
+source ${PROJECTDIR}/scripts/QC/source_me.sh
+ 
+cd ${PROJECTDIR}/analysis/pindel_files
+for f in */*pindel.vep.vcf.gz; do bash ${PROJECTDIR}/scripts/QC/select_vcf_pass_ontarget.sh ${f} ${BEDFILE}; done
+ 
+# Now add dbSNP common annotations to the filtered VCF from above
+# This creates *snpflagged.vcf.gz files.
+ for f in `dir -1 |grep PD`; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.sh -p $PROJECTDIR -o ./$f -v $f/$f.pindel.vep.filt.vcf.gz; done
+```
+- Make MAF files
+```bash
+PROJECTDIR=/lustre/scratch125/casm/teams/team113/projects/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
+i=1
+# Variables
+VCFLIST=${PROJECTDIR}/analysis/variants_combined/version${i}/caveman_pindel_vcfs_all.list
+BUILD="GRCh38"
+SAMPLELIST=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
+TEMP_MAF=${PROJECTDIR}/analysis/variants_combined/version${i}/caveman_pindel_pass_keep.maf
+FINAL_MAF=${PROJECTDIR}/analysis/variants_combined/version${i}/${STUDY}_${PROJECT}-filtered_mutations_matched_allTum_keep.maf
+SCRIPTDIR=${PROJECTDIR}/scripts/MAF
+
+cd ${PROJECTDIR}/analysis/variants_combined/version${i}
+
+# Generate a file with all the paths of the VCF files
+dir -1  ${PROJECTDIR}/analysis/caveman_files/PD*/*snpflagged.vcf.gz ${PROJECTDIR}/analysis/pindel_files/PD*/*snpflagged.vcf.gz | grep -f ${PROJECTDIR}/metadata/${STUDY}_${PROJECT}-analysed_all_tum.txt > caveman_pindel_vcfs_all.list
+
+# Transform the filtered VCFs into Combined MAFs
+# Convert VCFs to maf
+${SCRIPTDIR}/reformat_vcf2maf.pl --vcflist ${VCFLIST} --build ${BUILD} --pass --af_col "gnomAD_AF" --sample_list ${SAMPLELIST} --dbsnp_filter > ${TEMP_MAF}
+
+#Get the keep variants - all variants in coding and splice sites regions (including synonymous variants)
+head -n1 ${TEMP_MAF} > ${FINAL_MAF}
+awk 'BEGIN{FS="\t"}{if($28~/keep/){print}}' ${TEMP_MAF} >> ${FINAL_MAF}
+
+# Transform to Excel 
+Rscript ${SCRIPTDIR}/maf2xlsx.R ${FINAL_MAF}
+
+```
+- Copy the files to the Results directory and  plot
+```bash 
+PROJECTDIR=/lustre/scratch125/casm/teams/team113/projects/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
+i=1
+# Variables
+VCFLIST=${PROJECTDIR}/analysis/variants_combined/version${i}/caveman_pindel_vcfs_all.list
+BUILD="GRCh38"
+SAMPLELIST=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
+TEMP_MAF=${PROJECTDIR}/analysis/variants_combined/version${i}/caveman_pindel_pass_keep.maf
+FINAL_MAF=${PROJECTDIR}/analysis/variants_combined/version${i}/${STUDY}_${PROJECT}-filtered_mutations_matched_allTum_keep.maf
+SCRIPTDIR=${PROJECTDIR}/scripts/MAF
+
+RESDIR
+cd ${PROJECTDIR}/analysis/variants_combined/version${i}
+
+Hugo_Symbol	Sample_ID	Protein_Change
+NFATC1	PD54368a	S741Afs*17
+```
+
 
 ## Plot the Variants obtained from the MAF files
 
