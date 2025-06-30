@@ -66,7 +66,7 @@ lollipopPlot(
   maf = chang_maf,
   gene = 'NFATC1',
   AACol = 'HGVSp',
-  showMutationRate = TRUE,
+  showMutationRate = FALSE,
   labelPos = 741
 )
 dev.off()
