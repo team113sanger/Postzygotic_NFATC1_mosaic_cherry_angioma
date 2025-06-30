@@ -2,13 +2,13 @@
 
 ## Overview
 
-This document describes the steps taken to identify somatic single nucleotide variants (SNVs) and short INDEL mutations present on whole exome of samples obtained. This was done using CaVEMAN and Pindel.  All samples were checked for eveness of coveragte before the variant calling was perfomed (see [documentation/Coverage_depth_check.md](./Coverage_depth_check.md)). 
+This document describes the steps taken to identify somatic single nucleotide variants (SNVs) and short INDEL mutations present on whole exome of samples obtained. This was done using CaVEMAN and Pindel.  All samples were checked for evenness of coverage before the variant calling was performed (see [documentation/Coverage_depth_check.md](./Coverage_depth_check.md)). 
 
 All the scripts and code mentioned below can be found in the `scripts` directory.
 
 ## Results
 
-Files with the MAF file contatinin the summary of the results of the variant calling can be found in Figshare Project [here](https://figshare.com/projects/A_post-zygotic_disruptive_germline_NFATC1_variant_in_a_patient_with_segmental_cherry_angiomas/254267). 
+MAF file containing the summary of the results of the variant calling can be found in Figshare Project [here](https://figshare.com/projects/A_post-zygotic_disruptive_germline_NFATC1_variant_in_a_patient_with_segmental_cherry_angiomas/254267). 
 
 
 ## Sample Pairs used for somatic calling 
@@ -18,20 +18,23 @@ The list of sample pairs used for variant calling using the somatic callers can 
 ## Required Environment variables and software
 
 The following software is required to be installed and visible in the path before running the scripts:
-- **R**: R `4.3.3`
+- **R**: R `4.3.3`[**here**](https://www.r-project.org/)
 - **samtools**: `v1.14` [**here**](https://github.com/samtools/samtools)
 - **bcftools**: `1.9` [**here**](https://github.com/samtools/bcftools/)
-- **cgpCaVEManwrapper**: `1.18.2`[**here**](https://github.com/cancerit/cgpCaVEManWrapper)
-- **CaVEMan**: `1.18.2` [**here**](https://github.com/cancerit/CaVEMan)
-- **Smart-Phase**: `0.1.8`[casm docker image here](https://github.com/cancerit/CASM-Smart-Phase/tree/main)
-- **cgpPindel**: `3.11.0` [**here**](https://github.com/cancerit/cgpPindel)
+- **CaVEMan**: `1.15.1` [**here**](https://github.com/cancerit/CaVEMan)
+- **cgpCaVEManwrapper**:`1.17.2` [**here**](https://github.com/cancerit/cgpCaVEManWrapper)
+- **cgpPindel**: `v3.5.0` [**here**](https://github.com/cancerit/cgpPindel)
 - ENSEMBL VEP version `103`[**here**](http://feb2021.archive.ensembl.org/info/docs/tools/vep/index.html)
-- The repositories with the scripts used for variant QC and VCF to MAF conversion can be found in the following links:
+- The repositories with the scripts used for variant QC and VCF to MAF conversion have been added as **submodules** to this repository:
     - [**QC**](https://github.com/team113sanger/dermatlas_analysis_qc) `v0.4.3`
     - [**MAF**](https://github.com/team113sanger/dermatlas_analysis_maf) `v0.5.4` 
+    - To clone the submodules used if not done when cloning the repository, run the following command:
+```bash 
+git submodule update --init --recursive
+```
 
 :warning: **IMPORTANT NOTE** :warning:
-- The scripts below are written to be run in our internal servers and submitted using `lsf bsub`. The paths and the environment variables need to be adjusted to run in a different environment.
+- The scripts below are written to be run in our internal servers and submitted using `lsf bsub`. They are written to show an example of the commands used as the calling was performed with an internal pipeline that uses CaVEMan and Pindel inside singularity images.  paths and the environment variables need to be adjusted to run in a different environment.
 - `cgpCaVEManwrapper` and `cgpPindel` were downloaded and used as singularity images within our internal pieplines using `bpipe` and are called as such. Path, or scripts module call modifications may need to be made to run in a different environment.
 
 ### Clone MAF and QC repositories

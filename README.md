@@ -23,7 +23,7 @@ Analyses were performed using a combination of R, Perl and shell scripts.
 
 Analyses conducted with R can be reproduced in a development container with docker and R (4.3.3) installed (`.devcontainer/devcontainer.json`). All R scripts can therefore be run in a Github codespace or Vscode session with docker available. R dependencies for this project are detailed within the project `renv.lock` file and can be installed by running `renv::restore()` in a R terminal. If you'd like to reproduce the R environment using renv please refer to the official documentation [here](https://rstudio.github.io/renv/articles/renv.html).
 
-- All R scripts were run using `R v4.3.3` 
+- All R scripts were run using `R v4.3.3` [**here**](https://www.r-project.org/)
 - Perl scripts were run using Perl version `v5.38.0`
 - The following software was used:
   - `samtools` version`v1.14` [**here**](https://github.com/samtools/samtools)
@@ -33,9 +33,9 @@ Analyses conducted with R can be reproduced in a development container with dock
   - `tabix` version `1.9` [**here**](https://github.com/samtools/tabix/)
   - `CaVEMan` version `1.15.1` [**here**](https://github.com/cancerit/CaVEMan)
   - `cgpCaVEManwrapper` version `1.17.2` [**here**](https://github.com/cancerit/cgpCaVEManWrapper)
-  - `cgpPindel` version `3.5.0` [**here**](https://github.com/cancerit/cgpPindel)
+  - `cgpPindel` version `v3.5.0` [**here**](https://github.com/cancerit/cgpPindel)
   - ENSEMBL VEP version `103`[**here**](http://feb2021.archive.ensembl.org/info/docs/tools/vep/index.html)
-- The repositories with the scripts used for variant QC and VCF to MAF conversion can be found in the following links and are added as submodules in this repository:
+- The repositories with the scripts used for variant QC and VCF to MAF conversion can be found in the following links and are added as **submodules** to this repository:
     - [**QC**](https://github.com/team113sanger/dermatlas_analysis_qc) `v0.5.2`
     - [**MAF**](https://github.com/team113sanger/dermatlas_analysis_maf) `v0.6.4` 
 
