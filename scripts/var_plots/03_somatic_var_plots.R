@@ -62,7 +62,19 @@ dev.off()
 
 logger::log_info("Plot the variants observed in NFATC1 gene - lollipop plot")
 loli_fname<-file.path(results_dir, "NFATC1_loliplot.pdf")
-pdf(file =loli_fname ,width = 7, height = 4)
+pdf(file =loli_fname ,width = 8, height = 2.5)
+lollipopPlot(
+  maf = chang_maf,
+  gene = 'NFATC1',
+  AACol = 'HGVSp',
+  showMutationRate = FALSE,
+  labelPos = 741
+)
+dev.off()
+
+logger::log_info("Plot the variants observed in NFATC1 gene  for Figure 1B - lollipop plot")
+loli_fname<-file.path(fig_dir, "Fig1B_NFATC1_lollipop_Maftools.pdf")
+pdf(file =loli_fname ,width = 8, height = 2.5)
 lollipopPlot(
   maf = chang_maf,
   gene = 'NFATC1',
