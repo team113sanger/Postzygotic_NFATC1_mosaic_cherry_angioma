@@ -8,8 +8,10 @@ The following commands can be used to download the files:
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-mkdir -p ${PROJECTDIR}/analysis/variants_combined/version1
-
+MAFDIR=${PROJECTDIR}/analysis/variants_combined/version1
+mkdir -p ${MAFDIR}
+cd ${MAFDIR}
+# Download the MAF files from Figshare
 curl -k -o bundle.zip  https://figshare.com/ndownloader/articles/29437103/versions/1
 unzip bundle.zip
 ```
