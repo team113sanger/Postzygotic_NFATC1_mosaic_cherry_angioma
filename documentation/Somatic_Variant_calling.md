@@ -6,10 +6,25 @@ This document describes the steps taken to identify somatic single nucleotide va
 
 All the scripts and code mentioned below can be found in the `scripts` directory.
 
+## Results
+
+Files with the MAF file contatinin the summary of the results of the variant calling can be found in Figshare Project [here](https://figshare.com/projects/A_post-zygotic_disruptive_germline_NFATC1_variant_in_a_patient_with_segmental_cherry_angiomas/254267). 
+
+The files can be downloaded for plotting :
+
+```bash
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+mkdir -p ${PROJECTDIR}/analysis/variants_combined/version1
+
+curl -k -o bundle.zip  https://figshare.com/ndownloader/articles/29437103/versions/1
+unzip bundle.zip
+```
+
 ## Sample Pairs used for somatic calling 
 
-The list of sample pairs used for variant calling using the somatic callers can be found in the file [`metadata/8117-biosample_manifest-completed.tsv`](../metadata/8117-biosample_manifest-completed.tsv). Uninfected and Cas9_WT samples were used as normal samples for the somatic calling of SW837 and OMM2.5 grafts respectively.
+The list of sample pairs used for variant calling using the somatic callers can be found in the file [`metadata/8117-biosample_manifest-completed.tsv`](../metadata/8117-biosample_manifest-completed.tsv). 
  
+
 
 ## Required Environment variables and software
 
@@ -28,8 +43,7 @@ The following software is required to be installed and visible in the path befor
 
 :warning: **IMPORTANT NOTE** :warning:
 - The scripts below are written to be run in our internal servers and submitted using `lsf bsub`. The paths and the environment variables need to be adjusted to run in a different environment.
-- `cgpCaVEManwrapper` and `cgpPindel` were installed as modules in our internal servers and are called as such from the scripts. Path, or scripts module call modifications may need to be made to run in a different environment.
-
+- `cgpCaVEManwrapper` and `cgpPindel` were downloaded and used as singularity images within our internal pieplines using `bpipe` and are called as such. Path, or scripts module call modifications may need to be made to run in a different environment.
 
 ### Clone MAF and QC repositories
 Using `git` [(see here for how to install git)](https://github.com/git-guides/install-git) clone the repositories `MAF` version `0.5.4` and `QC` version `0.4.3` into the `scripts` directory of the project.
@@ -583,4 +597,13 @@ done
 OUTPUT:
 The script outputs a list of MAF files and plots however relevant file for the next stage of the analysis is:
 - [`analysis/variants_combined/version2/all/keep_caveman_pindel_all.maf`](../analysis/variants_combined/version2/all/keep_caveman_pindel_all.maf)
+
+
+
+## Plot the Variants obtained from the MAF files
+
+
+
+```bash
+https://figshare.com/ndownloader/articles/29416421
 

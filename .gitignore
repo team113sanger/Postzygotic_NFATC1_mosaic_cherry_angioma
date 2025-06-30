@@ -62,6 +62,8 @@ resources/music2
 resources/pindel/*
 !resources/pindel/WXS_Rules.lst
 
+
+
 # Ignore data_release folder
 data_release
 
@@ -71,7 +73,14 @@ required_datasets
 test_xenofilter
 
 #Analysis
-analysis
+analysis/
+!analysis/variants_combined/
+analysis/variants_combined/*
+!analysis/variants_combined/version1/
+!analysis/variants_combined/version1/**
+
+
+
 
 **/caveman_files
 **/pindel_files
