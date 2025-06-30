@@ -23,7 +23,6 @@ if (!dir.exists(fig_dir)) {
 
 logger::log_info("Reading the MAF file with the somatic variants")
 # Load the MAF file
-chang_maf_url<-"https://figshare.com/ndownloader/files/55690916"
 chang_maf_file<-file.path(projdir, "analysis", "variants_combined", "version1", "8117_2744-filtered_mutations_matched_allTum_keep.maf")
 chang_clin<-file.path(projdir, "metadata", "8117_2744_metadata.tsv")
 
@@ -36,6 +35,8 @@ chang_maf<-read.maf(maf = chang_maf_file,
 pcol<-c( "#C8403D","#B9975BFF")
 names(pcol)<- unique(chang_maf@clinical.data$Tissue_type)
 pcol<-list(Tissue_type=pcol)
+
+logger::log_info("Plot the summary of the somatic variants observed - oncoplot")
 
 oncoplot_fname<-file.path(results_dir, "Cherry_angioma_HS_som_mut_oncoplot.pdf")
 pdf(file =oncoplot_fname ,width = 8, height = 8)
@@ -59,7 +60,7 @@ oncoplot(chang_maf,
          draw_titv = F)
 dev.off()
 
-
+logger::log_info("Plot the variants observed in NFATC1 gene - lollipop plot")
 loli_fname<-file.path(results_dir, "NFATC1_loliplot.pdf")
 pdf(file =loli_fname ,width = 7, height = 4)
 lollipopPlot(
