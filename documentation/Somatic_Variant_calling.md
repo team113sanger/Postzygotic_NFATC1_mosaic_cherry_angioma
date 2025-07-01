@@ -2,9 +2,9 @@
 
 ## Overview
 
-This document describes the steps taken to identify somatic single nucleotide variants (SNVs) and short INDEL mutations present on whole exome of the biopsied samples. This was done using CaVEMAN and Pindel, followed by variant consequence prediction with VEP.  All samples were checked for evenness of coverage before the variant calling was performed (see [documentation/Coverage_depth_check.md](./Coverage_depth_check.md)). 
+This document describes the steps taken to identify somatic single nucleotide variants (SNVs) and short INDEL mutations present on the whole exome of the biopsied samples. This was done using CaVEMAN and Pindel, followed by variant consequence prediction with VEP.  All samples were checked for evenness of coverage before the variant calling was performed (see [documentation/Coverage_depth_check.md](./Coverage_depth_check.md)).   
 
-All the scripts and code mentioned below can be found in the `scripts` directory.
+The somatic calling, flagging and annotation was performed with an internal pipeline. The steps, and parameters used for the variant calling are described below including some example scripts. However, **Filtering, MAF conversion and plotting** were performed using the commands and scripts mentioned below on their respective section
 
 ## Results
 
@@ -35,15 +35,15 @@ The following software is required to be installed and visible in the path befor
 git submodule update --init --recursive
 ```
 
-:warning: <span style="color:red">**IMPORTANT NOTE**</span> :warning:
-- The scripts below are written to be run in our internal servers, which have Ubuntu 22.04.5 and submit jobs using `lsf bsub`. They are written to show an example of the commands used, this is because the calling was performed with an internal pipeline that uses CaVEMan and Pindel which utilise the same singularity images can be made.  Paths and environment variables would need to be adjusted to run in a different environment.
-- `cgpCaVEManwrapper` and `cgpPindel` were downloaded and used as singularity images within our internal pipelines using `bpipe`[https://docs.bpipe.org/](https://docs.bpipe.org/). Path, or scripts module call modifications may need to be made to run in a different environment.
+:warning: **IMPORTANT NOTES** :warning:
+- The scripts below are written to be run in our internal servers, which have Ubuntu 22.04.5 and submit jobs using `lsf bsub`. They are written to show an example of the commands used, this is because the calling was performed with an internal pipeline that uses CaVEMan and Pindel which utilise the same singularity images can be made from the repositories mentioned above.  Paths and environment variables would need to be adjusted to run in a different environment.
+- `cgpCaVEManwrapper` and `cgpPindel` were downloaded and used as singularity images within our internal pipelines using `bpipe`[https://docs.bpipe.org/](https://docs.bpipe.org/). 
+- bpipe running parameters used for CaVEMan and Pindel can be found in the [bpipe_CaVEMan_Pindel_running_params.md](./bpipe_CaVEMan_Pindel_running_params.md) file.
+- Path, or scripts module call modifications may need to be made to run in a different environment.
 
 ## Somatic variant calling
 
 The variant calling was performed using `CaVEMan` and `cgpPindel` somatic callers. To see the samples pairs used as tumour-normal for the calling see [metadata/8117-biosample_manifest-completed.tsv](../metadata/8117-biosample_manifest-completed.tsv). Metadata for the samples can be located in the[metadata/8117_2744_metadata.tsv](../metadata/8117_2744_metadata.tsv) table. Functional annotation was done with ENSEMBL v103 Variant Effect Predictor (VEP).  All jobs of these steps were performed inside an internal pipeline however the running for all the callers and variant effect prediction were the same as the ones used below. 
-
-
 
 ####  **STEP 1- CAVEMAN v1.15.1 SNV calling  **
 
