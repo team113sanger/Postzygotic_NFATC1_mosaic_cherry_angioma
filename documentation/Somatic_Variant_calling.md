@@ -41,7 +41,7 @@ git submodule update --init --recursive
 - bpipe running parameters used for CaVEMan and Pindel can be found in the [bpipe_CaVEMan_Pindel_running_params.md](./bpipe_CaVEMan_Pindel_running_params.md) file.
 - Path, or scripts module call modifications may need to be made to run in a different environment.
 
-## Somatic variant calling
+### Somatic variant calling
 
 The variant calling was performed using `CaVEMan` and `cgpPindel` somatic callers. To see the samples pairs used as tumour-normal for the calling see [metadata/8117-biosample_manifest-completed.tsv](../metadata/8117-biosample_manifest-completed.tsv). Metadata for the samples can be located in the[metadata/8117_2744_metadata.tsv](../metadata/8117_2744_metadata.tsv) table. Functional annotation was done with ENSEMBL v103 Variant Effect Predictor (VEP). 
 
@@ -162,7 +162,7 @@ find ./*/* -name "*.caveman_c.flag.vep.vcf.gz" -exec tabix -p vcf {} \;
 
 The list of FLAGS for cgpPindel v3.5 is required to run the calling. A copy of the rules file is shared with this repository in the resources folder. The file is:
 - [**WXS_Rules.lst**](../resources/pindel/WXS_Rules.lst)
-- []()
+- [**empty_germline_bed_for_caveman.bed**](../resources/caveman/example/empty_germline_bed_for_caveman.bed)
 
 To run the calling 
 ```bash
@@ -190,62 +190,11 @@ let num=num+1;
 g=`grep $f ${SAMPLETSV} |cut -f 2`; 
 bsub -e logs/pindel.$f-vs-$g.e -o logs/pindel.$f-vs-$g.o \
 -J"pindelrun[$num]" -n 6 -M40000 -R"select[mem>40000] rusage[mem=40000] \
-span[hosts=1]" -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_cgpPindel_3.11.sh ${f:?unset} ${g:?unset} 6 ${BMDIR:?unset} ${CGPINDRULES:?unset} "; 
+span[hosts=1]" -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_cgpPindel_3.5.sh ${f:?unset} ${g:?unset} 6 ${BMDIR:?unset} ${CGPINDRULES:?unset} "; 
 done
 
 ```
-#### STEP 6- CGP Pindel v3.11 calling  -POST-PROCESSING
-
-To get the PASS calls within the targeted exome regions with +-100bp, the following commands were used:
-
-- First the files were renames to remove the Tumour_vs_Normal format in the VCF file names 
-```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-STUDY=8117
-PROJECT=2744
-
-# BAMDIR
-BMDIR=${PROJECTDIR}/bams
-SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
-PINDELDIR=${PROJECTDIR}/analysis/PINDEL
-
-#Re name the samples from Tumour_vs_Normal to just Tumour
-num=0; 
-for f in `cut -f 1 ${SAMPLETSV}`;  do 
-echo $num; 
-let num=num+1; 
-g=`grep $f ${SAMPLETSV} |cut -f 2`;
-mv ${PINDELDIR:?unset}/${f}/${f}_vs_${g}.flagged.vcf.gz ${PINDELDIR:?unset}/${f}/${f}.pindel.flagged.vcf.gz ; 
-mv ${PINDELDIR:?unset}/${f}/${f}_vs_${g}.flagged.vcf.gz.tbi ${PINDELDIR:?unset}/${f}/${f}.pindel.flagged.vcf.gz.tbi ;
-done
-```
--To run the filter of PASSing variants within the targeted exome regions with 100bp, the following commands were used:
-
-```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-STUDY=8117
-PROJECT=2744
-
-# BAMDIR
-BMDIR=${PROJECTDIR}/bams
-SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
-PINDELDIR=${PROJECTDIR}/analysis/PINDEL
-# path to germline indels bedfile
-export GERM_INDEL=${PROJECTDIR}/resources/caveman/example/empty_germline_bed_for_caveman.bed
-#Pindel Rules file - copy in resources/pindel
-export CGPINDRULES=/lustre/scratch124/casm/team78pipelines/canpipe/live/ref/human/GRCh38_full_analysis_set_plus_decoy_hla/pindel/WXS_Rules.lst
-#Baitset BED file paded100 bp
-HUM_PAD_MERGED_BAITSET=${PROJECTDIR}/resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed
-
-cd ${PINDELDIR}
-
-# GET variants that are within the targeted exome regions with 100bp
-ls -1 ${PINDELDIR:?unset}/*/*.flagged.vcf.gz >flag_samples_files.list
-bash ${PROJECTDIR}/scripts/offpipe_calling/filterPindelPassTargetsFromVCF.sh ./flag_samples_files.list ${HUM_PAD_MERGED_BAITSET:?unset}
-
-```
-
-#### CGP Pindel v3.9 calling  -  VEP annotation
+#### STEP 5-  CGP Pindel v3.5  -  VEP annotation
 
 To predict the effect of the identified variants, ENSEMBLs' VEP v103 was used with additional custom annotations regarding their presence in external datasets such as:
     - gnomAD [`**v3.1**`](https://gnomad.broadinstitute.org/news/2019-10-gnomad-v3-0/)
@@ -265,74 +214,90 @@ BMDIR=${PROJECTDIR}/bams
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 PINDELDIR=${PROJECTDIR}/analysis/PINDEL
 # path to germline indels bedfile
-export GERM_INDEL=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES/resources/caveman/example/empty_germline_bed_for_caveman.bed
+export GERM_INDEL=${PROJECTDIR}/resources/caveman/example/empty_germline_bed_for_caveman.bed
 #Pindel Rules file - copy in resources/pindel
-export CGPINDRULES=/lustre/scratch124/casm/team78pipelines/canpipe/live/ref/human/GRCh38_full_analysis_set_plus_decoy_hla/pindel/WXS_Rules.lst
+export CGPINDRULES=${PROJECTDIR}/resources/pindel/WXS_Rules.lst
 
 cd ${PINDELDIR}
 
 #to create the file with the sample list for analysis (taking the sample pairs names
-ls -1 ${PINDELDIR:?unset}/*/*.flagged.target.pass.vcf.gz >flag_targ_pass_samples_files.list
+ls -1 ${PINDELDIR:?unset}/*/*.flagged.vcf.gz >flag_samples_files.list
 
-bash ${PROJECTDIR}/scripts/VEP/run_vep_pindel_Ens103.dermatlas.grch38.sh ./flag_targ_pass_samples_files.list
+bash ${PROJECTDIR}/scripts/VEP/run_vep_pindel_Ens103.grch38.sh ./flag_samples_files.list
 
 #Then sort the naming Tumour_vs_Normal to Tumour only output to allow easy conversion to MAF
 num=0; 
 for f in `cut -f 1 ${SAMPLETSV}`;  do 
 echo $num; 
 let num=num+1; 
-g=`grep $f ${SAMPLETSV} |cut -f 2`;
+g=`grep $f ${SAMPLETSV} | cut -f 2`;
 mv ${PINDELDIR:?unset}/${f}/${f}.flagged.vcf.gz ${PINDELDIR:?unset}/${f}/${f}.pindel.flagged.vcf.gz ; 
 mv ${PINDELDIR:?unset}/${f}/${f}.flagged.vcf.gz.tbi ${PINDELDIR:?unset}/${f}/${f}.pindel.flagged.vcf.gz.tbi ;
-mv ${PINDELDIR:?unset}/${f}/${f}.flagged.target.pass.vep.vcf.gz ${PINDELDIR:?unset}/${f}/${f}.pindel.vep.vcf.gz ;
-mv ${PINDELDIR:?unset}/${f}/${f}.flagged.target.pass.vep.vcf.gz.tbi ${PINDELDIR:?unset}/${f}/${f}.pindel.vep.vcf.gz.tbi ;
+mv ${PINDELDIR:?unset}/${f}/${f}.flagged.vep.vcf.gz ${PINDELDIR:?unset}/${f}/${f}.pindel.vep.vcf.gz ;
+mv ${PINDELDIR:?unset}/${f}/${f}.flagged.vep.vcf.gz.tbi ${PINDELDIR:?unset}/${f}/${f}.pindel.vep.vcf.gz.tbi ;
 cp -R ${PINDELDIR:?unset}/${f} ${PROJECTDIR}/analysis/pindel_files/
 done
+
 ```
 
-### Additional annotations from dbSNP155 common variants
+### Post processing filter, MAF file generation and plotting
+
+To reproduce this steps download the raw annotated VCFs from EGA study Accession **EGAS00001008212** and place them in the `analysis/caveman_files/PD*` and `analysis/pindel_files/PD*` directories respectively. The VCF files should be named as `<SAMPLE>.caveman_c.vep.vcf.gz` and `<SAMPLE>.pindel.vep.vcf.gz` respectively, where `<SAMPLE>` is the sample name.
 
 #### Adding annotations for dbSNP155 common variants  - CavEMan
+
+We retain variants that passed the Flagging criteria from CaVEMAn and kept variants that were located within the baitset regions.  To do this we ran 
+the following commands, using the script `select_vcf_pass_ontarget.sh` from the [`QC`](../scripts/QC) repository. This script filters the VCF files to retain only those variants that are on-target and have the PASS flag.
+
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
-STUDY_ID=3365
 
 cd ${PROJECTDIR}/analysis
-# Baitset BED file paded100 bp
-BEDFILE=${PROJECTDIR}/resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed
-source ${PROJECTDIR}/scripts/QC/source_me.sh
+
+BEDFILE=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
 
 cd ${PROJECTDIR}/analysis/caveman_files
+# First get the on-target PASS variants from the CaVEMan  VCF file 
 
-# First get the on-target PASS variants from the CaVEMan file copied from nst_links (*smartphase.vep.vcf.gz)
-# The output is *smartphase.vep.filt.vcf.gz
- 
+for f in */*.caveman_c.vep.vcf.gz; do nice -n 5 bash ${PROJECTDIR:?unset}/scripts/QC/select_vcf_pass_ontarget.sh ${f} ${BEDFILE:?unset}; done
+```
+OUTPUT:
+- **`<SAMPLE>.caveman_c.vep.filt.vcf.gz`** files are created in the `analysis/caveman_files/` directories. These files contain the variants that passed the filtering criteria.
+
+Subsequntly, to add the information regarding the presence of variants in dbSNP155, the following steps were performed, using script `add_commonSNPs2vcf.sh` from the [`QC`](../scripts/QC) repository. 
+
+```bash
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
+
+BEDFILE=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
+
 cd ${PROJECTDIR}/analysis/caveman_files
-
-for f in */*.smartphase.vep.vcf.gz; do bash ${PROJECTDIR}/scripts/QC/select_vcf_pass_ontarget.sh $f $BEDFILE; done
-
 # Now add dbSNP common annotations to the filtered VCF from above
-for f in `dir -1`; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.sh -p ${PROJECTDIR} -o ./$f -v $f/$f.smartphase.vep.filt.vcf.gz; done
+for f in `dir -1 |grep PD`; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.sh -p $PROJECTDIR -o ./$f -v $f/$f.caveman_c.vep.filt.vcf.gz; done
  
 # This creates *snpflagged.vcf.gz files.
 ```
+OUTPUT:
+- **`<SAMPLE>.caveman_c.vep.filt.snpflagged.vcf.gz`** files are created in the `analysis/caveman_files/PD*` directories. These files contain the variants that passed the filtering criteria and have been annotated with dbSNP155 common variants information.
+
 
 #### Adding annotations for dbSNP155 common variants  - Pindel
+
+Similar to what was done for CaVEMAn, we retained variants that passed the Flagging criteria from Pindel and kept variants that were located within the baitset regions. To do this we ran the following commands, using the script `select_vcf_pass_ontarget.sh`
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
-STUDY_ID=3365
+
 
 cd ${PROJECTDIR}/analysis
 
-# First get the on-target PASS variants from the CaVEMan file copied from nst_links (*pindel.vep.vcf.gz)
-# The output is *pindel.vep.filt.vcf.gz
-
-# First get the on-target PASS variants from the Pindel files copied from nst_links (*pindel.vep.vcf.gz)
+# First get the on-target PASS variants from the VCF file copied 
 # The output is *pindel.vep.filt.vcf.gz
 BEDFILE=${PROJECTDIR}/resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed
 
@@ -352,7 +317,7 @@ for f in `dir -1 `; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
-STUDY_ID=3365
+
 PREFIX="${STUDY}_${PROJECT}"
 
 # Create the testing directory
