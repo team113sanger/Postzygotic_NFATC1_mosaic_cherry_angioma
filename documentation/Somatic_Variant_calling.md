@@ -23,7 +23,7 @@ The following software is required to be installed and visible in the path befor
 - **R**: R `4.3.3`[**here**](https://cran.r-project.org/)
 - **samtools**: `v1.14` [**here**](https://github.com/samtools/samtools)
 - **bcftools**: `1.9` [**here**](https://github.com/samtools/bcftools/)
-- **CaVEMan**: `1.15.1` [**here**](https://github.com/cancerit/CaVEMan)
+- **CaVEMan**: `1.17.2` [**here**](https://github.com/cancerit/CaVEMan)
 - **cgpCaVEManwrapper**:`1.17.2` [**here**](https://github.com/cancerit/cgpCaVEManWrapper)
 - **cgpPindel**: `v3.5.0` [**here**](https://github.com/cancerit/cgpPindel)
 - ENSEMBL VEP version `103`[**here**](http://feb2021.archive.ensembl.org/info/docs/tools/vep/index.html)
@@ -79,7 +79,7 @@ done
 ```
 #### STEP 2- CGP CAVEMAN v18.2 flagging - cgpFlagCaVEMan
 
-For this step the flagging .ini files are required, these contain the parameters for the flagging of the variants. A copy of these are shared with this repository in the resources folder. The files are:
+For this step the flagging .ini files are required, these contain the parameters for the flagging of the variants. A copy of these are shared within this repository in the resources folder. The files are:
 - [**flag.to.vcf.convert.ini**](../resources/caveman/flag.to.vcf.convert.ini) -  contains conversions of flags to FLAG ID
 - [**flag.vcf.config.ini**](../resources/caveman/flag.vcf.config.ini) - specifies which flags are cutoffs to use for WXS, WGS, etc. 
 
@@ -91,7 +91,7 @@ PROJECT=2744
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
 # Sample pairs file
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
+SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 # Caveman directory
 CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
 CAVECONFIG=/lustre/scratch124/casm/team78pipelines/reference/human/GRCh38_full_analysis_set_plus_decoy_hla/caveman/flag.vcf.config.ini
@@ -117,7 +117,7 @@ STUDY=8117
 PROJECT=2744
 
 # Sample pairs file
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
+SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 # Caveman directory
 CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
 cd ${CAVEMANDIR}
@@ -144,7 +144,7 @@ STUDY=8117
 PROJECT=2744
 
 #Sample pairs file
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
+SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 #Caveman directory
 CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
 cd ${CAVEMANDIR}
@@ -168,7 +168,7 @@ STUDY=8117
 PROJECT=2744
 
 #Sample pairs file
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
+SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 #Baitset BED file paded100 bp
 BEDFILE=${PROJECTDIR}/resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed
 
@@ -191,7 +191,7 @@ PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
 #Sample pairs file
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
+SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 #Caveman results directory
 CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
 
@@ -222,7 +222,7 @@ PROJECT=2744
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
 #Sample pairs file
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
+SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
 # path to germline indels bedfile
 export GERM_INDEL=${PROJECTDIR}/resources/caveman/example/empty_germline_bed_for_caveman.bed
@@ -255,7 +255,7 @@ PROJECT=2744
 
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
+SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
 
 #Re name the samples from Tumour_vs_Normal to just Tumour
@@ -277,7 +277,7 @@ PROJECT=2744
 
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
+SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
 # path to germline indels bedfile
 export GERM_INDEL=${PROJECTDIR}/resources/caveman/example/empty_germline_bed_for_caveman.bed
@@ -311,7 +311,7 @@ PROJECT=2744
 
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
+SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
 # path to germline indels bedfile
 export GERM_INDEL=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES/resources/caveman/example/empty_germline_bed_for_caveman.bed

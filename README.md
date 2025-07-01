@@ -31,7 +31,7 @@ Analyses conducted with R can be reproduced in a development container with dock
   - `biobambam2` version `2.0.146` [**here**](https://github.com/gt1/biobambam2)
   - `bcftools` version `1.9` [**here**](https://github.com/samtools/bcftools/)
   - `tabix` version `1.9` [**here**](https://github.com/samtools/tabix/)
-  - `CaVEMan` version `1.15.1` [**here**](https://github.com/cancerit/CaVEMan)
+  - `CaVEMan` version `1.17.2` [**here**](https://github.com/cancerit/CaVEMan)
   - `cgpCaVEManwrapper` version `1.17.2` [**here**](https://github.com/cancerit/cgpCaVEManWrapper)
   - `cgpPindel` version `v3.5.0` [**here**](https://github.com/cancerit/cgpPindel)
   - ENSEMBL VEP version `103`[**here**](http://feb2021.archive.ensembl.org/info/docs/tools/vep/index.html)
