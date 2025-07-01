@@ -296,12 +296,12 @@ PROJECT=2744
 
 cd ${PROJECTDIR}/analysis/pindel_files
 
-# First get the on-target PASS variants from the VCF file copied 
+#  First get the on-target PASS variants from the Pindel files 
 # The output is *pindel.vep.filt.vcf.gz
-BEDFILE=${PROJECTDIR}/resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed
+BEDFILE=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
 
-for f in */*pindel.vep.vcf.gz; do bash ${PROJECTDIR}/scripts/QC/select_vcf_pass_ontarget.sh $f ${BEDFILE}; done
-
+for f in */*pindel.vep.vcf.gz; do bash ${PROJECTDIR}/scripts/QC/select_vcf_pass_ontarget.sh ${f} ${BEDFILE}; done
+ 
 ```
 OUTPUT:
 - **`<SAMPLE>.pindel.vep.filt.vcf.gz`** files are created in the `analysis/pindel_files/PD*` directories. These files contain the variants that passed the filtering criteria.
@@ -317,16 +317,15 @@ cd ${PROJECTDIR}/analysis/pindel_files
 
 # Now add dbSNP common annotations to the filtered VCF from above
 # This creates *snpflagged.vcf.gz files.
- 
-for f in `dir -1 `; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.sh -p ${PROJECTDIR} -o ./$f -v $f/$f.pindel.vep.filt.vcf.gz; done
+ for f in `dir -1 |grep PD`; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.sh -p ${PROJECTDIR} -o ./${f} -v ${f}/${f}.pindel.vep.filt.vcf.gz; done
 
 ```
 OUTPUT:
 - **`<SAMPLE>.pindel.vep.filt.snpflagged.vcf.gz`** files are created in the `analysis/pindel_files/PD*` directories. These files contain the variants that passed the filtering criteria and have been annotated with dbSNP155 common variants information. These files are used to create the MAF files in the next step.
 
-#### Combine CaVEMan and Pindel files - to Generate MAF file
+#### Get the list of CaVEMan and Pindel files 
 
-We get the list of all the VCFs and their paths into a single file `caveman_pindel_vcfs_all.list` to be used for the MAF generation. The following commands were used to create the directory and the lists of VCF files to be used for the MAF generation using the `QC` repository scripts.
+We get the list of all the VCFs and their paths into a single file `caveman_pindel_vcfs_all.list` to be used for the MAF generation. The following commands were used to create the directory and the lists of VCF files to be used for the MAF generation. 
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
@@ -337,96 +336,21 @@ mkdir -p ${PROJECTDIR}/analysis/variants_combined/version${i}
 
 cd ${PROJECTDIR}/analysis/variants_combined/version${i}
 
-# If you have multiple independent tumours per patient and multiple tumours from the same tumour (duplicate samples), you can use "all" samples pulled from nst_links
+# Generate the file witha ll the paths of the VCF files
 dir -1  ${PROJECTDIR}/analysis/caveman_files/*/*.snpflagged.vcf.gz ${PROJECTDIR}/analysis/pindel_files/*/*snpflagged.vcf.gz | grep -f ${PROJECTDIR}/metadata/${STUDY}_${PROJECT}-analysed_all_tum.txt > caveman_pindel_vcfs_all.list
  
 ```
+
 #### Get the MAF files
 
-To make MAF files and plots, the VCF files containing the SNV, MNV, INDELs were combined create a `variants_combined` directory. The following commands were used to create the directory and the lists of VCF files to be used for the MAF generation using the 
+To make MAF files and plots, the VCF files containing the SNV, MNV, INDELs per samples were combined and converted into MAF file. In this step all variants in coding and splice sites regions (including synonymous variants) were included. This was done using the `reformat_vcf2maf.pl` scripts form the MAF repository. The following commands were used :
 
-
-```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-STUDY=8117
-PROJECT=2744
-i=2
-
-cd ${PROJECTDIR}/analysis/variants_combined/version${i}
-source ${PROJECTDIR}/scripts/QC/source_me.sh
-mkdir logs
-# caveman_pindel_vcfs_${f}.list  - is your list of CaVEMan and Pindel VCFs
-# caveman_pindel_${f}.maf  - is the suffix for the output MAF files
-# filter2  - indicates filtering of indels based on VAF and size/type should be run
- 
-cd ${PROJECTDIR}/analysis/variants_combined/version${i}
- 
-for f in onePerPatient independent all; do
-    mkdir $f
-    cd $f
-    mkdir -p logs
-    bsub -e logs/qc.e -o logs/qc.o -M1200 -R"select[mem>1200] rusage[mem=1200]" -q normal \
-    "bash ${PROJECTDIR}/scripts/QC/somatic_variants_qc.sh -l ../caveman_pindel_vcfs_${f}.list -m caveman_pindel_${f}.maf -s ${PROJECTDIR}/scripts -b GRCh38 -a gnomAD_AF -f filter2 -t ${PROJECTDIR}/resources/ensembl/dermatlas_noncanonical_transcripts_ens103.tsv"
-    cd ..
-done
-```
-OUTPUT:
-The script outputs a list of MAF files and plots however relevant file for the next stage of the analysis is:
-- [`analysis/variants_combined/version2/all/keep_caveman_pindel_all.maf`](../analysis/variants_combined/version2/all/keep_caveman_pindel_all.maf)
-
-
-## Somatic Variant Filtering and plotting
-
-Files  Adding annotations for dbSNP155 common variants  - CavEMan
-```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-STUDY=8117
-#It requires the canapps project ID instead
-PROJECT=2744
-cd ${PROJECTDIR}/analysis
-
-BEDFILE=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
-source ${PROJECTDIR}/scripts/QC/source_me.sh
-
-cd ${PROJECTDIR}/analysis/caveman_files
-# First get the on-target PASS variants from the CaVEMan file copied from nst_links (*smartphase.vep.vcf.gz)
-# The output is *smartphase.vep.filt.vcf.gz
-
-for f in */*.caveman_c.vep.vcf.gz; do nice -n 5 bash ${PROJECTDIR:?unset}/scripts/QC/select_vcf_pass_ontarget.sh ${f} ${BEDFILE:?unset}; done
-
-# Now add dbSNP common annotations to the filtered VCF from above
-for f in `dir -1 |grep PD`; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.sh -p $PROJECTDIR -o ./$f -v $f/$f.caveman_c.vep.filt.vcf.gz; done
- 
-# This creates *snpflagged.vcf.gz files.
-```
-
-- Adding annotations for dbSNP155 common variants  - Pindel
-
-```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-STUDY=8117
-#It requires the canapps project ID instead
-PROJECT=2744
-cd ${PROJECTDIR}/analysis
-
-# First get the on-target PASS variants from the Pindel files copied (*pindel.vep.vcf.gz)
-# The output is *pindel.vep.filt.vcf.gz
-BEDFILE=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
-source ${PROJECTDIR}/scripts/QC/source_me.sh
- 
-cd ${PROJECTDIR}/analysis/pindel_files
-for f in */*pindel.vep.vcf.gz; do bash ${PROJECTDIR}/scripts/QC/select_vcf_pass_ontarget.sh ${f} ${BEDFILE}; done
- 
-# Now add dbSNP common annotations to the filtered VCF from above
-# This creates *snpflagged.vcf.gz files.
- for f in `dir -1 |grep PD`; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.sh -p $PROJECTDIR -o ./$f -v $f/$f.pindel.vep.filt.vcf.gz; done
-```
-- Make MAF files
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
 i=1
+
 # Variables
 VCFLIST=${PROJECTDIR}/analysis/variants_combined/version${i}/caveman_pindel_vcfs_all.list
 BUILD="GRCh38"
@@ -436,9 +360,6 @@ FINAL_MAF=${PROJECTDIR}/analysis/variants_combined/version${i}/${STUDY}_${PROJEC
 SCRIPTDIR=${PROJECTDIR}/scripts/MAF
 
 cd ${PROJECTDIR}/analysis/variants_combined/version${i}
-
-# Generate a file with all the paths of the VCF files
-dir -1  ${PROJECTDIR}/analysis/caveman_files/PD*/*snpflagged.vcf.gz ${PROJECTDIR}/analysis/pindel_files/PD*/*snpflagged.vcf.gz | grep -f ${PROJECTDIR}/metadata/${STUDY}_${PROJECT}-analysed_all_tum.txt > caveman_pindel_vcfs_all.list
 
 # Transform the filtered VCFs into Combined MAFs
 # Convert VCFs to maf
@@ -447,37 +368,40 @@ ${SCRIPTDIR}/reformat_vcf2maf.pl --vcflist ${VCFLIST} --build ${BUILD} --pass --
 #Get the keep variants - all variants in coding and splice sites regions (including synonymous variants)
 head -n1 ${TEMP_MAF} > ${FINAL_MAF}
 awk 'BEGIN{FS="\t"}{if($28~/keep/){print}}' ${TEMP_MAF} >> ${FINAL_MAF}
+rm ${TEMP_MAF}
 
 # Transform to Excel 
 Rscript ${SCRIPTDIR}/maf2xlsx.R ${FINAL_MAF}
 
 ```
-- Copy the files to the Results directory and  plot
+
+OUTPUT:
+The script outputs a MAF and an excel file, both contain all variants in coding and splice sites regions (including synonymous variants)
+- [`analysis/variants_combined/version1/8117_2744-filtered_mutations_matched_allTum_keep.maf`](../analysis/variants_combined/version1/8117_2744-filtered_mutations_matched_allTum_keep.maf)
+- [`analysis/variants_combined/version1/8117_2744-filtered_mutations_matched_allTum_keep.xlsx`](../analysis/variants_combined/version1/8117_2744-filtered_mutations_matched_allTum_keep.xlsx)
+
+
+#### Summary plots
+
+Finally to generate the summary plots of with all of the variants found, we ran the `03_somatic_var_plots.R` script.  This script takes the MAF file generated above and creates a summar tileplot and Figure 1B. The script is located in the [`scripts/var_plots`](../scripts/var_plots) directory. The following commands were used to run the script:
+
 ```bash 
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
 i=1
 # Variables
-VCFLIST=${PROJECTDIR}/analysis/variants_combined/version${i}/caveman_pindel_vcfs_all.list
-BUILD="GRCh38"
-SAMPLELIST=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
-TEMP_MAF=${PROJECTDIR}/analysis/variants_combined/version${i}/caveman_pindel_pass_keep.maf
-FINAL_MAF=${PROJECTDIR}/analysis/variants_combined/version${i}/${STUDY}_${PROJECT}-filtered_mutations_matched_allTum_keep.maf
-SCRIPTDIR=${PROJECTDIR}/scripts/MAF
+export FINAL_MAF=${PROJECTDIR}/analysis/variants_combined/version${i}/${STUDY}_${PROJECT}-filtered_mutations_matched_allTum_keep.maf
+export SCRIPTDIR=${PROJECTDIR}/scripts/var_plots
 
-RESDIR
+# Results dir
 cd ${PROJECTDIR}/analysis/variants_combined/version${i}
 
-Hugo_Symbol	Sample_ID	Protein_Change
-NFATC1	PD54368a	S741Afs*17
+Rscript ${SCRIPTDIR}/03_somatic_var_plots.R
+
 ```
 
-
-## Plot the Variants obtained from the MAF files
-
-
-**NOTE** If none of the other steps were run and you want to plot the variants from the MAF files, follow the steps below specified in the [`README.md`](../analysis/variants_combined/version1/README.md) file inside the `analysis/variants_combined/version1` directory. To get the MAF files from FigShare. 
-
-
+OUTPUT:
+- [`results/somatic_var_plots/Cherry_angioma_HS_som_mut_oncoplot.pdf`](../analysis/variants_combined/version1/results/somatic_var_plots/Cherry_angioma_HS_som_mut_oncoplot.pdf) : oncoplot with the summary of the somatic variants found in the samples.
+- [`results/somatic_var_plots/NFATC1_loliplot.pdf`](../analysis/variants_combined/version1/results/somatic_var_plots/NFATC1_loliplot.pdf) : loliplot with the summary of the NFATC1 variants found in the samples. This figure is used in the manuscript as **Figure 1B**. See [`results/figures/Fig1B_NFATC1_lollipop_Maftools.pdf`](../results/figures/Fig1B_NFATC1_lollipop_Maftools.pdf)
 
