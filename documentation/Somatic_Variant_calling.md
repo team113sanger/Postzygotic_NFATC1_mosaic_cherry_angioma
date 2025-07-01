@@ -77,7 +77,7 @@ bsub -e ./logs/caveman.${Tumour_PDID}-vs-${Normal_PDID}.e -o ./logs/caveman.${Tu
 done
 
 ```
-#### STEP 2- CGP CAVEMAN v1.17.2 flagging - cgpFlagCaVEMan
+#### STEP 2-  CAVEMAN v1.17.2 flagging - cgpFlagCaVEMan.pl
 
 For this step the flagging .ini files are required, these contain the parameters for the flagging of the variants. A copy of these are shared within this repository in the resources folder. The files are:
 - [**flag.to.vcf.convert.ini**](../resources/caveman/flag.to.vcf.convert.ini) -  contains conversions of flags to FLAG ID
@@ -124,11 +124,11 @@ cd ${CAVEMANDIR}
 cat ${SAMPLETSV:?unset} | cut -f 1,2 | sed 's/\t/_vs_/g' >samples.list
 
 module load bcftools-1.9/python-3.11.6
-find ${PROJECTDIR}/analysis/CAVEMAN/*/* -name "*_DNA.smartphase.flag.vcf" -type f -exec bgzip {} \;
-find ${PROJECTDIR}/analysis/CAVEMAN/*/* -name "*_DNA.smartphase.flag.vcf.gz" -exec tabix -p vcf {} \;
+find ${PROJECTDIR}/analysis/CAVEMAN/*/* -name "*_DNA.flag.vcf" -type f -exec bgzip {} \;
+find ${PROJECTDIR}/analysis/CAVEMAN/*/* -name "*_DNA.flag.vcf.gz" -exec tabix -p vcf {} \;
 
 ```
-#### STEP 4- CGP CAVEMAN v1.17.4  VEP103 annotation - run_vep_caveman_vdermEns103.target.custom.grch38.sh
+#### STEP 3- CGP CAVEMAN v1.17.2  VEP103 annotation - run_vep_caveman_vdermEns103.target.custom.grch38.sh
 
 To predict the effect of the identified variants, ENSEMBLs' VEP v103 was used with additional custom annotations regarding their presence in external datasets such as:
     - gnomAD [`**v3.1**`](https://gnomad.broadinstitute.org/news/2019-10-gnomad-v3-0/)
@@ -136,7 +136,7 @@ To predict the effect of the identified variants, ENSEMBLs' VEP v103 was used wi
     - COSMIC [`**v97**`](https://cancer.sanger.ac.uk/cosmic/download/cosmic)
     - ClinVar [`**20220115**`](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2022/clinvar_20220115.vcf.gz)
 
-To run the VEP annotation the following commands were used:
+To run the VEP annotation the following commands were used :
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
@@ -149,69 +149,20 @@ SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
 cd ${CAVEMANDIR}
 # List of caveman vcf files
-ls -1 ${CAVEMANDIR}/*/*_DNA.smartphase.flag.vcf.gz >samples.list
+ls -1 ${CAVEMANDIR}/*/*.caveman_c.flag.vcf.gz >samples.list
 #Run the VEP annotation
-bash ${PROJECTDIR}/scripts/VEP/run_vep_pindel_Ens103.dermatlas.grch38.sh ./samples.list
+bash ${PROJECTDIR}/scripts/VEP/run_vep_pindel_Ens103.grch38.sh ./samples.list
+
 #Then index the VCFs
 module load bcftools-1.9/python-3.11.6
-find ./*/* -name "*_DNA.smartphase.flag.vcf.gz" -exec tabix -p vcf {} \;
+find ./*/* -name "*.caveman_c.flag.vep.vcf.gz" -exec tabix -p vcf {} \;
 ```
 
-#### STEP 4.1- Filter the VCFs for PASSed variants located +-100bp of the bait target regions
+#### STEP 4- Pindel calling   -CGP Pindel v3.5 calling 
 
-Variants were filtered to keep only those that passed flagging and were called are within +-100bp of bait set targeted regions. BED file used provided. 
-
-The following commands were used to filter the VCFs:
-```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-STUDY=8117
-PROJECT=2744
-
-#Sample pairs file
-SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
-#Baitset BED file paded100 bp
-BEDFILE=${PROJECTDIR}/resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed
-
-#Caveman results directory
-CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
-cd ${CAVEMANDIR}
-# List of caveman-SNV-MNV-Flagged-Annotated vcf files
-ls -1 ${CAVEMANDIR}/*/*_DNA.smartphase.flag.vep.vcf.gz >samples.list
-bash ${PROJECTDIR}/scripts/filterCaVEManPassTargetsFromVCF.sh ./samples.list ${BEDFILE:?unset} 
-
-#Index the vcfs
-module load bcftools-1.9/python-3.11.6
-find ./*/* -name "*.smartphase.flag.vep.vcf.gz" -exec tabix -p vcf {} \;
-```
-
-Edit VCF file naming from Tumour_vs_Normal to Tumour only output to allow easy conversion to MAF 
-
-```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-STUDY=8117
-PROJECT=2744
-#Sample pairs file
-SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
-#Caveman results directory
-CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
-
-cd ${CAVEMANDIR}
-# Then sort the naming so it is consistent with the one obtained by canapps pipeline
-num=0; 
-for f in `cut -f 1 ${SAMPLETSV}`;  do 
-echo $num; 
-let num=num+1; 
-g=`grep $f ${SAMPLETSV} |cut -f 2`;
-mv ${CAVEMANDIR:?unset}/${f}/${f}_vs_${g}.smartphase.flag.vep.vcf.gz ${CAVEMANDIR:?unset}/${f}/${f}.smartphase.vep.vcf.gz ; 
-mv ${CAVEMANDIR:?unset}/${f}/${f}_vs_${g}.smartphase.flag.vep.vcf.gz.tbi ${CAVEMANDIR:?unset}/${f}/${f}.smartphase.vep.vcf.gz.tbi ;
-# TO copy the files to the directory they belonged for QC plotting
-cp -R ${CAVEMANDIR:?unset}/${f} ${PROJECTDIR}/analysis/caveman_files/
-done
-```
-#### STEP 6- Pindel calling   -CGP Pindel v3.11 calling 
-
-The list of FLAGS for cgpPindel v3.11 is required to run the calling. A copy of the rules file is shared with this repository in the resources folder. The file is:
-- [**WXS_Rules.lst**](../resources/pindel/WXS_Rules.lst) -
+The list of FLAGS for cgpPindel v3.5 is required to run the calling. A copy of the rules file is shared with this repository in the resources folder. The file is:
+- [**WXS_Rules.lst**](../resources/pindel/WXS_Rules.lst)
+- []()
 
 To run the calling 
 ```bash
@@ -223,14 +174,14 @@ PROJECT=2744
 BMDIR=${PROJECTDIR}/bams
 #Sample pairs file
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
-PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
+PINDELDIR=${PROJECTDIR}/analysis/PINDEL
 # path to germline indels bedfile
 export GERM_INDEL=${PROJECTDIR}/resources/caveman/example/empty_germline_bed_for_caveman.bed
 #Pindel Rules file - copy in ${PROJECTDIR}/resources/pindel
-export CGPINDRULES=/lustre/scratch124/casm/team78pipelines/canpipe/live/ref/human/GRCh38_full_analysis_set_plus_decoy_hla/pindel/WXS_Rules.lst
+export CGPINDRULES=/lustre/canpipe/live/ref/human/GRCh38_full_analysis_set_plus_decoy_hla/pindel/WXS_Rules.lst
 
-mkdir -p $PINDELDIR
-cd $PINDELDIR
+mkdir -p ${PINDELDIR}
+cd ${PINDELDIR}
 mkdir -p logs;
 num=0; 
 for f in `cut -f 1 ${SAMPLETSV}`;  do 
@@ -256,7 +207,7 @@ PROJECT=2744
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
-PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
+PINDELDIR=${PROJECTDIR}/analysis/PINDEL
 
 #Re name the samples from Tumour_vs_Normal to just Tumour
 num=0; 
@@ -278,7 +229,7 @@ PROJECT=2744
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
-PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
+PINDELDIR=${PROJECTDIR}/analysis/PINDEL
 # path to germline indels bedfile
 export GERM_INDEL=${PROJECTDIR}/resources/caveman/example/empty_germline_bed_for_caveman.bed
 #Pindel Rules file - copy in resources/pindel
@@ -312,13 +263,13 @@ PROJECT=2744
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
-PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
+PINDELDIR=${PROJECTDIR}/analysis/PINDEL
 # path to germline indels bedfile
 export GERM_INDEL=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES/resources/caveman/example/empty_germline_bed_for_caveman.bed
 #Pindel Rules file - copy in resources/pindel
 export CGPINDRULES=/lustre/scratch124/casm/team78pipelines/canpipe/live/ref/human/GRCh38_full_analysis_set_plus_decoy_hla/pindel/WXS_Rules.lst
 
-cd $PINDELDIR
+cd ${PINDELDIR}
 
 #to create the file with the sample list for analysis (taking the sample pairs names
 ls -1 ${PINDELDIR:?unset}/*/*.flagged.target.pass.vcf.gz >flag_targ_pass_samples_files.list

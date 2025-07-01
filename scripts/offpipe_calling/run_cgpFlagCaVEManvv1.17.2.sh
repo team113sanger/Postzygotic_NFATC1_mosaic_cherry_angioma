@@ -1,7 +1,7 @@
 #! /bin/bash
 # THe script is aimed to be run as 
 # run_cgpFlagCaVEManvv1.17.2.sh config_file_wFLAGS versionID tumour_PDID normal_PDID SAMPLE_Pair_name BAM_DIR VCF_Main_DIR
-#bash ./run_cgpFlagCaVEManvv1.17.2.sh DERMATLAS_final_flag.vcf.config.ini v1 PD52540a PD52540b PD52540a_vs_D52540b /lustre/projects/BAMS/WES /lustre/projects/results/CAVEMAN
+#bash ./run_cgpFlagCaVEManvv1.17.2.sh final_flag.vcf.config.ini v1 PD52540a PD52540b PD52540a_vs_D52540b /lustre/projects/BAMS/WES /lustre/projects/results/CAVEMAN
 
 #INPUT parameters
 config=${1}
@@ -24,7 +24,7 @@ export MT_BAM=${BAMDIR}/${tumour}/${tumour}.sample.dupmarked.bam
 export WT_BAM=${BAMDIR}/${normal}/${normal}.sample.dupmarked.bam
 
 ####################################################################################
-# Special environment variables required for cgpcavemanwrapper/1.18.2
+# Special environment variables required for cgpcavemanwrapper/1.17.2
 ####################################################################################
 # set this to your lustre area
 export WORK=${PWD}
