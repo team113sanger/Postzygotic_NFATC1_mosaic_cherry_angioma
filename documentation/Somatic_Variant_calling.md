@@ -1,14 +1,16 @@
-# Somatic variant calling 
+# Somatic variant calling parameters, annotation filtering and results
 
 ## Overview
 
-This document describes the steps taken to identify somatic single nucleotide variants (SNVs) and short INDEL mutations present on whole exome of samples obtained. This was done using CaVEMAN and Pindel.  All samples were checked for evenness of coverage before the variant calling was performed (see [documentation/Coverage_depth_check.md](./Coverage_depth_check.md)). 
+This document describes the steps taken to identify somatic single nucleotide variants (SNVs) and short INDEL mutations present on whole exome of the biopsied samples. This was done using CaVEMAN and Pindel, followed by variant consequence prediction with VEP.  All samples were checked for evenness of coverage before the variant calling was performed (see [documentation/Coverage_depth_check.md](./Coverage_depth_check.md)). 
 
 All the scripts and code mentioned below can be found in the `scripts` directory.
 
 ## Results
 
 MAF file containing the summary of the results of the variant calling can be found in Figshare Project [here](https://figshare.com/projects/A_post-zygotic_disruptive_germline_NFATC1_variant_in_a_patient_with_segmental_cherry_angiomas/254267). 
+
+Raw VCF files containing the flagged and VEP annotated variants calls can be found obtained from the EGA **EGAS00001008212**
 
 
 ## Sample Pairs used for somatic calling 
@@ -18,7 +20,7 @@ The list of sample pairs used for variant calling using the somatic callers can 
 ## Required Environment variables and software
 
 The following software is required to be installed and visible in the path before running the scripts:
-- **R**: R `4.3.3`[**here**](https://www.r-project.org/)
+- **R**: R `4.3.3`[**here**](https://cran.r-project.org/)
 - **samtools**: `v1.14` [**here**](https://github.com/samtools/samtools)
 - **bcftools**: `1.9` [**here**](https://github.com/samtools/bcftools/)
 - **CaVEMan**: `1.15.1` [**here**](https://github.com/cancerit/CaVEMan)
@@ -34,35 +36,12 @@ git submodule update --init --recursive
 ```
 
 :warning: **IMPORTANT NOTE** :warning:
-- The scripts below are written to be run in our internal servers and submitted using `lsf bsub`. They are written to show an example of the commands used as the calling was performed with an internal pipeline that uses CaVEMan and Pindel inside singularity images.  paths and the environment variables need to be adjusted to run in a different environment.
-- `cgpCaVEManwrapper` and `cgpPindel` were downloaded and used as singularity images within our internal pieplines using `bpipe` and are called as such. Path, or scripts module call modifications may need to be made to run in a different environment.
+- The scripts below are written to be run in our internal servers and submitted using `lsf bsub`. They are written to show an example of the commands used as the calling was performed with an internal pipeline that uses CaVEMan and Pindel inside singularity images.  Paths and the environment variables need to be adjusted to run in a different environment.
+- `cgpCaVEManwrapper` and `cgpPindel` were downloaded and used as singularity images within our internal pipelines using `bpipe`[https://docs.bpipe.org/](https://docs.bpipe.org/) and are called as such. Path, or scripts module call modifications may need to be made to run in a different environment.
 
-### Clone MAF and QC repositories
-Using `git` [(see here for how to install git)](https://github.com/git-guides/install-git) clone the repositories `MAF` version `0.5.4` and `QC` version `0.4.3` into the `scripts` directory of the project.
+## Somatic variant calling
 
-To do this do the following: 
-
-**NOTE**
-Set the `PROJECTDIR` variable to the path where the repository was cloned into and run the following commands in the terminal:
-
-```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
-
-cd ${PROJECTDIR}/scripts
-
-# Clone the MAF repository
-git clone -b '0.5.4' git@github.com:team113sanger/dermatlas_analysis_maf.git MAF
-
-# Clone the QC repository
-git clone -b '0.4.3' git@github.com:team113sanger/dermatlas_analysis_qc.git QC
-
-```
-
-## SW837 variant calls
-
-The variant calling for the SW837 samples was performed using `CavEMan`, `SmartPhase` and `cgpPindel` somatic callers using the matched **Uninfected**  biological replicates as normal. These tasks, including VEP annotation with ENSEMBL v103, were performed inside an internal pipeline however the running for all the callers and variant effect prediction were the same as the ones used below. 
+The variant calling was performed using `CaVEMan` and `cgpPindel` somatic callers. To see the samples pairs used as tumour-normal see [metadata/8117-biosample_manifest-completed.tsv](../metadata/8117-biosample_manifest-completed.tsv).  Metadata of these samples can be found here These tasks, including VEP annotation with ENSEMBL v103, were performed inside an internal pipeline however the running for all the callers and variant effect prediction were the same as the ones used below. 
 
 
 ## Calling of OMM2.5 grafts using filtered WES data
@@ -591,9 +570,9 @@ The script outputs a list of MAF files and plots however relevant file for the n
 - [`analysis/variants_combined/version2/all/keep_caveman_pindel_all.maf`](../analysis/variants_combined/version2/all/keep_caveman_pindel_all.maf)
 
 
-## Variant Filtering:
+## Somatic Variant Filtering and plotting
 
--Adding annotations for dbSNP155 common variants  - CavEMan
+Files  Adding annotations for dbSNP155 common variants  - CavEMan
 ```bash
 PROJECTDIR=/lustre/scratch125/casm/teams/team113/projects/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117

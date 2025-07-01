@@ -23,7 +23,7 @@ Analyses were performed using a combination of R, Perl and shell scripts.
 
 Analyses conducted with R can be reproduced in a development container with docker and R (4.3.3) installed (`.devcontainer/devcontainer.json`). All R scripts can therefore be run in a Github codespace or Vscode session with docker available. R dependencies for this project are detailed within the project `renv.lock` file and can be installed by running `renv::restore()` in a R terminal. If you'd like to reproduce the R environment using renv please refer to the official documentation [here](https://rstudio.github.io/renv/articles/renv.html).
 
-- All R scripts were run using `R v4.3.3` [**here**](https://www.r-project.org/)
+- All R scripts were run using `R v4.3.3` [**here**](https://cran.r-project.org/)
 - Perl scripts were run using Perl version `v5.38.0`
 - The following software was used:
   - `samtools` version`v1.14` [**here**](https://github.com/samtools/samtools)
