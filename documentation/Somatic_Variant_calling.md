@@ -71,13 +71,13 @@ for Tumour_PDID in `cut -f 1 ${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv`;
 echo $num; 
 let num=num+1; 
 Normal_PDID=`grep ${Tumour_PDID} ${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv |cut -f 2`; 
-bsub -e ./logs/caveman.${Tumour_PDID}-vs-$Normal_PDID.e -o ./logs/caveman.${Tumour_PDID}-vs-$Normal_PDID.o \
+bsub -e ./logs/caveman.${Tumour_PDID}-vs-${Normal_PDID}.e -o ./logs/caveman.${Tumour_PDID}-vs-${Normal_PDID}.o \
 -J"cavemanrun[$num]" -n 7 -M40000 -R"select[mem>40000] rusage[mem=40000] span[hosts=1]"\
  -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_Cavemanwrapper_1.17.2.sh ${Tumour_PDID:?unset} ${Normal_PDID:?unset} 6 ${BMDIR:?unset} "; 
 done
 
 ```
-#### STEP 2- CGP CAVEMAN v18.2 flagging - cgpFlagCaVEMan
+#### STEP 2- CGP CAVEMAN v1.17.2 flagging - cgpFlagCaVEMan
 
 For this step the flagging .ini files are required, these contain the parameters for the flagging of the variants. A copy of these are shared within this repository in the resources folder. The files are:
 - [**flag.to.vcf.convert.ini**](../resources/caveman/flag.to.vcf.convert.ini) -  contains conversions of flags to FLAG ID
@@ -89,12 +89,12 @@ STUDY=8117
 PROJECT=2744
 
 # BAMDIR
-BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
+BMDIR=${PROJECTDIR}/bams
 # Sample pairs file
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 # Caveman directory
 CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
-CAVECONFIG=/lustre/scratch124/casm/team78pipelines/reference/human/GRCh38_full_analysis_set_plus_decoy_hla/caveman/flag.vcf.config.ini
+CAVECONFIG=/lustre/reference/human/GRCh38_full_analysis_set_plus_decoy_hla/caveman/flag.vcf.config.ini
 
 cd ${PROJECTDIR}/analysis/CAVEMAN
 num=0; 
@@ -102,10 +102,10 @@ for Tumour_PDID in `cut -f 1 ${SAMPLETSV}`;  do
 echo $num; 
 let num=num+1; 
 Normal_PDID=`grep ${Tumour_PDID} ${SAMPLETSV} |cut -f 2`;
-PAIR=${Tumour_PDID}"_vs_"$Normal_PDID; 
-bsub -e ./logs/caveman.cgpFlag.${Tumour_PDID}-vs-$Normal_PDID.e -o ./logs/caveman.cgpFlag.${Tumour_PDID}-vs-$Normal_PDID.o \
+PAIR=${Tumour_PDID}"_vs_"${Normal_PDID}; 
+bsub -e ./logs/caveman.cgpFlag.${Tumour_PDID}-vs-${Normal_PDID}.e -o ./logs/caveman.cgpFlag.${Tumour_PDID}-vs-${Normal_PDID}.o \
 -J"cavemanflag[$num]" -n 4 -M8000 -R"select[mem>8000] rusage[mem=8000] span[hosts=1]"\
- -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_cgpFlagCaVEManv1.15.1_postprocessingmnv.sh ${CAVECONFIG:?unset} v1 ${Tumour_PDID} $Normal_PDID ${PAIR:?unset} ${BMDIR:?unset} ${CAVEMANDIR:?unset} "; 
+ -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_cgpFlagCaVEManvv1.17.2.sh ${CAVECONFIG:?unset} v1 ${Tumour_PDID} ${Normal_PDID} ${PAIR:?unset} ${BMDIR:?unset} ${CAVEMANDIR:?unset} "; 
 done
 ```
 
@@ -220,7 +220,7 @@ STUDY=8117
 PROJECT=2744
 
 # BAMDIR
-BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
+BMDIR=${PROJECTDIR}/bams
 #Sample pairs file
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
@@ -254,7 +254,7 @@ STUDY=8117
 PROJECT=2744
 
 # BAMDIR
-BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
+BMDIR=${PROJECTDIR}/bams
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
 
@@ -276,7 +276,7 @@ STUDY=8117
 PROJECT=2744
 
 # BAMDIR
-BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
+BMDIR=${PROJECTDIR}/bams
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
 # path to germline indels bedfile
@@ -310,7 +310,7 @@ STUDY=8117
 PROJECT=2744
 
 # BAMDIR
-BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
+BMDIR=${PROJECTDIR}/bams
 SAMPLETSV=${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv
 PINDELDIR=${PROJECTDIR}/analysis/PINDEL3.11
 # path to germline indels bedfile
