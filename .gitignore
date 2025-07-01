@@ -27,13 +27,32 @@ logs
 
 # Ignore dot env
 *.venv
+
+# Ignore resources folder
 resources/ascat
-resources/baitset/*
-!resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed
-!resources/caveman
+resources/baitset
+resources/baitset
+resources/CHANGELOG.md
+resources/clinvar
+resources/COSMIC
+resources/dndscv
+resources/germline
+resources/giab
+resources/gistic2
+resources/gnomad
+resources/GRCh38_full.fasta
+resources/GRCh38_full.fasta.fai
+resources/music2
+resources/oncodrivefml
+resources/oncokb
+resources/README.md
+resources/signal
+resources/sparki
+resources/tumour-only
+resources/ucsc
 resources/dbsnp/*
-!resources/dbsnp/README_common_snps.txt
 !resources/dbsnp/addheader.txt
+!resources/dbsnp/README.md
 resources/ensembl/*
 !resources/ensembl/dermatlas_noncanonical_transcripts_ens103.tsv
 resources/germline
@@ -42,20 +61,11 @@ resources/gistic
 resources/music2
 resources/pindel/*
 !resources/pindel/WXS_Rules.lst
-resources/Signal
-resources/ucsc
-resources/dndscv
-resources/COSMIC/*
-!resources/COSMIC/OMM2.5_mutated_cancer_gene_census.v97.genes_names.tsv
 
 
 
-
-#Reference generation scripts
-
-# Singularity images 
-*.sif
-
+# Ignore data_release folder
+data_release
 
 #Ignore base_dir
 base_dir
@@ -63,10 +73,15 @@ required_datasets
 test_xenofilter
 
 #Analysis
-analysis
+analysis/
+!analysis/variants_combined/version1/*
+
+
+
 
 **/caveman_files
 **/pindel_files
 
 
 
+temp

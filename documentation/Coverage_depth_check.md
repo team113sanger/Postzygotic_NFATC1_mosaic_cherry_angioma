@@ -2,114 +2,103 @@
 
 ## Overview
 
-To analyse the evenness of coverage depth of the samples, we used a file that contained the coordinates of the baits used for exome capture.  liftover to GRCh38 followed by the use of the `samtools depth` command to calculate the coverage depth of each sample. The output was then processed to generate a summary of the coverage depth across all samples.
+To analyse the evenness of coverage depth of the samples, we used a file that contained the coordinates of the baits used for exome capture. Coordinates from hg19 were converted to GRCh38 coordinates. Following this, coverage observed was performed using `samtools depth` command to calculate the coverage depth of each sample. The output was then processed to generate a summary of the coverage depth across all samples.
 
-Samples with a coverage depth of >20X coverage across at least 80% of the baits used were considered for somatic variant calling. 
+Samples with a coverage depth of **>20X across at least 80% of the baits** used were considered for somatic variant calling. 
 
 ## Dependencies
 
 ## Required software
 
-- `CrossMap` version `0.5.4>` [**here**](http://crossmap.sourceforge.net/)
+The scripts used for this analysis are located in the `scripts/coverage_qc` directory. The analysis was performed using a combination of R, Perl, and shell scripts. The following software versions were used:
 
-### Required data
+- Perl scripts were run using Perl version `v5.38.0`[**here**](https://www.perl.org/)
+- `LifOver` [**here**](https://genome.ucsc.edu/cgi-bin/hgLiftOver)
+- `samtools` version `1.14` [**here**](https://www.htslib.org/)
+- `R` version `4.3.3` [**here**](https://www.r-project.org/)
+- `bwa-mem` version `0.7.17` [**here**](https://github.com/lh3/bwa)
+- `biobambam2` version `2.0.146` [**here**](https://github.com/gt1/biobambam2)
 
-- The bait set used for the exome capture was the Agilent SureSelect Human All Exon V6+UTR, the file was obtained from Agilent and obtained  (GRCh38 liftover). File [`resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed`](resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed) 
-- The chain file for the liftOver from hg19 to GRCh38 was downloaded from UCSC [`hg19ToHg38.over.chain.gz`](resources/baits/chainset/hg19ToHg38.over.chain.gz)
+### Required datasets
 
--Since I Received the bait set information from Agilent SureSelectV6+UTRs bait set (S07604624_hs_hg19.zip)  located here:
-${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_hg19
+- The bait set used for the exome capture was the Agilent SureSelect Human All Exon V6+UTR, the file was obtained from Agilent (file S07604624_hs_hg19.zip). Coordinates for GRCh38 were obtained by performing a liftover from hg19 to GRCh38 coordinates using [`LifOver`](https://genome.ucsc.edu/cgi-bin/hgLiftOver). See file [`resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed`](resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed) 
 
--I downloaded the UCSC chain file to be able to do the liftOver from hg19 to GRCh38  using CrossMaP( http://crossmap.sourceforge.net/  )
-- The Chain file was downloaded from (http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/ ) and the file was [hg19ToHg38.over.chain.gz](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz)
-```bash
-cd ${PROJECTDIR}/resources/baits/chainset
-wget http://hgdownload.cse.ucsc.edu/goldenpath/hg19/liftOver/hg19ToHg38.over.chain.gz
-```
+## Data alignment and processing
 
--Then to submit the jobs for the liftover of the BED files I did the following:
-```bash
-cd  ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38
-mkdir ./logs
-bsub -q normal -o ./logs/cmap1_%J.o -e ./logs/cmap1_%J.e -M4000 -R"select[mem>4000] rusage[mem=4000] span[hosts=1]" -n 6 '/software/team113/users/mdc1/python/bin/CrossMap.py bed ${PROJECTDIR}/resources/baits/chainset/hg19ToHg38.over.chain.gz ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_hg19/S07604624_Covered.bed ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38/S07604624_Covered.bed '
-
-bsub -q normal -o ./logs/cmap1_%J.o -e ./logs/cmap1_%J.e -M4000 -R"select[mem>4000] rusage[mem=4000] span[hosts=1]" -n 6 '/software/team113/users/mdc1/python/bin/CrossMap.py bed ${PROJECTDIR}/resources/baits/chainset/hg19ToHg38.over.chain.gz ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_hg19/S07604624_AllTracks.bed ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38/S07604624_AllTracks.bed'
-
-bsub -q normal -o ./logs/cmap1_%J.o -e ./logs/cmap1_%J.e -M4000 -R"select[mem>4000] rusage[mem=4000] span[hosts=1]" -n 6 '/software/team113/users/mdc1/python/bin/CrossMap.py bed ${PROJECTDIR}/resources/baits/chainset/hg19ToHg38.over.chain.gz ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_hg19/S07604624_Padded.bed ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38/S07604624_Padded.bed '
-
-bsub -q normal -o ./logs/cmap1_%J.o -e ./logs/cmap1_%J.e -M4000 -R"select[mem>4000] rusage[mem=4000] span[hosts=1]" -n 6 'CrossMap.py bed ${PROJECTDIR}/resources/baits/chainset/hg19ToHg38.over.chain.gz ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_hg19/S07604624_Regions.bed ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38/S07604624_Regions.bed'
-
-cp ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_hg19/S07604624_Targets.txt ${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38/
-```
-
--The summary of the files  NUMBER of sequences that liftover properly and the ones that are missing from the important files present is :
-
-```
-mdc1@farm5-head2:${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38$ wc -l S07604624_Padded.bed
-299098 S07604624_Padded.bed
-(base) mdc1@farm5-head2:${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38$ wc -l S07604624_Padded.bed.unmap
-20 S07604624_Padded.bed.unmap
-(base) mdc1@farm5-head2:${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38$ wc -l S07604624_Covered.bed
-297506 S07604624_Covered.bed
-(base) mdc1@farm5-head2:${PROJECTDIR}/resources/baits/Agilent_SureSelectV6_plus_UTRs_GRCh38$ wc -l S07604624_Covered.bed.unmap
-23 S07604624_Covered.bed.unmap
-```
-- Edu has confirmed in an email  that  the samples were extracted from fresh frozen tissues. 
--I have a started the  somatic calling of the tumour samples with Caveman and Pindel 
--I have issued a sent a ticket [Hinxton 739371] Asking if there is a normal sample that  can be used with the GRCh38 ENS 103 reference
+The WES sequencing data was aligned to the GRCh38 Human reference genome using `bwa-mem` version `0.7.17` [**here**](https://github.com/lh3/bwa). PCR duplicates were marked using `bammarkduplicates2` from biobambam2 version `2.0.146`[**here**](https://github.com/gt1/biobambam2). The same process was applied for all samples and done through an internal pipeline.
 
 
 ## Coverage Depth analysis
--To do the Coverage Depth analysis I have run the following:
-TO CALCULATE THE  samples DEPTH for the entire COHORT
--To make a copy Links to the bam files I ran the following 
+
+The Coverage Depth analysis was run under a cluster environment with **Ubuntu 22.04** and **LSF job execution**. It is required to replace the `PROJECTDIR` shell environment variable with the path of where the current repository was downloaded. 
+
+### Download BAM files 
+
+BAM files are available for Download from EGA repository with Study Accession ID **EGAS00001008212**, EGA website [*here**](https://ega-archive.org/).  The BAM files should be named as `<sample_name>.sample.dupmarked.bam`, where `<sample_name>` is the name of the sample. Follow EGA procedure to get access to the data.  Sample BAM files should be downloaded and placed in the `BAMS` directory under the `PROJECTDIR`.
+
 ```bash
-PROJECTDIR=/lustre/scratch117/casm/team113/projects/2744_IVO_Cherry_angioma_WES
-cp -L /nfs/cancer_ref01/nst_links/live/2744/*/*.sample.dupmarked.bam $PROJECTDIR/BAMS/
-#Then to Copy the indexes I ran the following
-PROJECTDIR=/lustre/scratch117/casm/team113/projects/2744_IVO_Cherry_angioma_WES
-cp -L /nfs/cancer_ref01/nst_links/live/2744/*/*.sample.dupmarked.bam.bai $PROJECTDIR/BAMS/
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+BAMDIR=${PROJECTDIR}/BAMS
+mkdir -p ${BAMDIR}
+# Download BAM files from EGA repository here
 ```
 
--To get the  copy of the liftovered baitset required I did the following: (method described in confluence here:
-https://confluence.sanger.ac.uk/display/CIH/retrieving+the+baitset+used+by+a+project )
-```bash
-module load labProjectAdmin/2.3.2
-PROJECTDIR=/lustre/scratch117/casm/team113/projects/2744_IVO_Cherry_angioma_WES
-PROJECTDIR=/lustre/scratch125/casm/teams/team113/users/mdc1
-mkdir -p $PROJECTDIR/required_datasets
-cd $PROJECTDIR/required_datasets
-#This is the "SureSelect_Human_All_Exon_V6+UTR (GRCh38 liftover)" baitset ID in canapps 177
-get_baitset.pl -i 177
-mv SureSelect_Human_All_Exon_V6+UTR\ \(GRCh38\ liftover\)_177.bed SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
-```
+### Calculate depth of coverage
 
--To make a job array to calculate the depth with Samtools 
+To make a job array to calculate the depth of coverage for each sample across the baitset coordinates we ran the following commands:
+
 ```bash
-mkdir -p $PROJECTDIR/results/qc_plots/depth
-mkdir -p $PROJECTDIR/logs/depth
-cd $PROJECTDIR/results/qc_plots/depth
+export PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+export RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
+export BAITSET=${PROJECTDIR}/resources/baits/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed
+export LOGDIR=${PROJECTDIR}/logs/depth
+
+mkdir -p ${RESULTSDIR}
+mkdir -p ${LOGDIR}
+
+cd ${RESULTSDIR}
 #To create the sample list file 
-ls -1 $PROJECTDIR/BAMS/*.bam >sample_bams.fofn
-ls -1 $PROJECTDIR/BAMS/*.bam | cut -f 9 -d "/" | sed 's/\.sample\.dupmarked\.bam//' >sample.list
+ls -1 ${PROJECTDIR}/BAMS/*.bam >sample_bams.fofn
+ls -1 ${PROJECTDIR}/BAMS/*.bam | cut -f 9 -d "/" | sed 's/\.sample\.dupmarked\.bam//' >sample.list
 #To create the jobs for submission of sample depth calculation
-for f in `cat sample.list`; do bsub -e $PROJECTDIR/logs/depth/depth.$f.e -o $PROJECTDIR/logs/depth/depth.$f.o -n 2 -M2000 -R"select[mem>2000] rusage[mem=2000]" "module load samtools/1.14; samtools depth -a -b $PROJECTDIR/required_datasets/SureSelect_Human_All_Exon_V6_plusUTR_GRCh38_liftover.bed -o $f.depth.tsv -J -s -@ 2 $PROJECTDIR/BAMS/$f.sample.dupmarked.bam"; done
+for f in `cat sample.list`; do bsub -e ${LOGDIR}/depth.${f}.e -o ${LOGDIR}/depth.${f}.o -n 2 -M2000 -R"select[mem>2000] rusage[mem=2000]" "samtools depth -a -b ${BAITSET} -o ${f}.depth.tsv -J -s -@ 2 ${PROJECTDIR}/BAMS/${f}.sample.dupmarked.bam"; done
+```
+OUTPUT : `${f}.depth.tsv` files for each sample containing 
 
-```
--Then to  summarise the coverage stats per sample
+Subsequently to generate the summaries of the proportion of bases covered with at least a given coverage threshold in steps of 10X, the following commands were run:
+
 ```bash
-mkdir -p $PROJECTDIR/scripts
-cp /lustre/scratch119/casm/team113da/projects/6500_DERMATLAS_SG_basal_cell_adenoma_and_adenocarcinoma_WES/SCRIPTS/DEPTH/* $PROJECTDIR/scripts
-cd $PROJECTDIR/qc_plots/depth
-for f in `cat sample.list`; do bsub -e $PROJECTDIR/logs/depth/count.$f.e -o $PROJECTDIR/logs/depth/count.$f.o -M2000 -R"select[mem>2000] rusage[mem=2000]" -q small "$PROJECTDIR/scripts/count_region_coverage.pl $f.depth.tsv > $f.covstats.tsv"; done
+export PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+export RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
+export DPSCRIPTDIR=${PROJECTDIR}/scripts/coverage_qc
+export LOGDIR=${PROJECTDIR}/logs/depth
+
+cd ${RESULTSDIR}
+
+for f in `cat sample.list`; do bsub -e ${LOGDIR}/count.${f}.e -o ${LOGDIR}/count.${f}.o -M2000 -R"select[mem>2000] rusage[mem=2000]" -q small "${DPSCRIPTDIR}/count_region_coverage.pl ${f}.depth.tsv > ${f}.covstats.tsv"; done
 ```
--Then to summarise the coverage stats per cohort
+OUTPUT : `${f}.covstats.tsv` files for each sample containing the coverage depth statistics for each sample at 10X intervals from 11+(>10X) to 121+.
+
+- Then to summarise the coverage stats per cohort
+
 ```bash
+export PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+export RESULTSDIR=${PROJECTDIR}/results/qc_plots/depth
+export DPSCRIPTDIR=${PROJECTDIR}/scripts/coverage_qc
 #Togenerate the cov_stats summary for the cohort
-
+cd ${RESULTSDIR}
 #Get the header from the first file
-for f in `ls -1 *.covstats.tsv | head -n1`; do head -n1 $f | sed 's/^11/Sample\t11/' >cov_stats_summary.tsv; done
+for f in `ls -1 *.covstats.tsv | head -n1`; do head -n1 ${f} | sed 's/^11/Sample\t11/' >cov_stats_summary.tsv; done
 grep -v Mean *stats.tsv | sed 's/.covstats.tsv:/\t/' >> cov_stats_summary.tsv
 
-module load R/4.1.0; Rscript scripts/coverage_qc/02_plot_cov_stats_summary_sortByMeanCov_mod.R
+# Generate the tables and plots for the coverage stats summary
+cd ${PROJECTDIR}
+Rscript ${DPSCRIPTDIR}/02_plot_cov_stats_summary_sortByMeanCov_mod.R
 ```
+The outputs of the above script will be located in the `results/qc_plots/depth` directory. The script will generate the following files:
+
+- `cov_stats_summary.tsv`: file containing the coverage depth statistics for each sample at 10X intervals from 11+(>10X) to 121+
+- `summary_cov_stats_ordered.png`: Plot showing the coverage depth statistics for each sample with samples on the Y-axis and proportion of bases within the bait regions with X coverage at given coverage depth intervals, from 11+ to 121+ on the X-axis. Text on the plot indicates the highest interval of coverage depth at which the sample has at least 80% of the bases covered. 
+- `Final_cov_stats_summary.tsv`: file containing the list of samples that passed the coverage depth QC, i.e., samples with at least 80% of the bases covered at 20X (21+ or above).
+
+Samples with at least 80% of the bases covered at 20X (21+ or above) passed the coverage depth QC and were considered for somatic variant calling.
