@@ -43,7 +43,7 @@ git submodule update --init --recursive
 
 ## Somatic variant calling
 
-The variant calling was performed using `CaVEMan` and `cgpPindel` somatic callers. To see the samples pairs used as tumour-normal for the calling see [metadata/8117-biosample_manifest-completed.tsv](../metadata/8117-biosample_manifest-completed.tsv). Metadata for the samples can be located in the[metadata/8117_2744_metadata.tsv](../metadata/8117_2744_metadata.tsv) table. Functional annotation was done with ENSEMBL v103 Variant Effect Predictor (VEP).  All jobs of these steps were performed inside an internal pipeline however the running for all the callers and variant effect prediction were the same as the ones used below. 
+The variant calling was performed using `CaVEMan` and `cgpPindel` somatic callers. To see the samples pairs used as tumour-normal for the calling see [metadata/8117-biosample_manifest-completed.tsv](../metadata/8117-biosample_manifest-completed.tsv). Metadata for the samples can be located in the[metadata/8117_2744_metadata.tsv](../metadata/8117_2744_metadata.tsv) table. Functional annotation was done with ENSEMBL v103 Variant Effect Predictor (VEP). 
 
 ####  **STEP 1- CAVEMAN v1.15.1 SNV calling  **
 
@@ -53,130 +53,40 @@ Running parameters for the Caveman calling can be found inside the [run_Cavemanw
 Set the `PROJECTDIR` variable to the path where the repository was cloned into and run the following commands in the terminal:
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 PREFIX="${STUDY}_${PROJECT}"
 
 cd ${PROJECTDIR}/scripts
 
-# BAM Directory for the Xenofilitered WES data
-BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
+# BAM Directory for WES data
+BMDIR=${PROJECTDIR}/bams
 
 mkdir -p ${PROJECTDIR}/analysis/CAVEMAN
 cd ${PROJECTDIR}/analysis/CAVEMAN
 mkdir -p logs;
 num=0; 
-for Tumour_PDID in `cut -f 1 ${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25.tsv`;  do 
+for Tumour_PDID in `cut -f 1 ${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv`;  do 
 echo $num; 
 let num=num+1; 
-Normal_PDID=`grep ${Tumour_PDID} ${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25.tsv |cut -f 2`; 
+Normal_PDID=`grep ${Tumour_PDID} ${PROJECTDIR}/metadata/8117_2744-analysed_all.tsv |cut -f 2`; 
 bsub -e ./logs/caveman.${Tumour_PDID}-vs-$Normal_PDID.e -o ./logs/caveman.${Tumour_PDID}-vs-$Normal_PDID.o \
 -J"cavemanrun[$num]" -n 7 -M40000 -R"select[mem>40000] rusage[mem=40000] span[hosts=1]"\
  -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_Cavemanwrapper_1.17.2.sh ${Tumour_PDID:?unset} ${Normal_PDID:?unset} 6 ${BMDIR:?unset} "; 
 done
 
 ```
-
-#### **STEP 2- Call/Identify MNVs using SmartPhase 0.1.8 from unflagged CaVEMan**
-
-There are 3 steps to call MNVs from unflagged CaVEMan calls using smart-phase:
-- generate-bed (to get the adjacent MNVs)
-- smart-phase (to phase the MNVs)
-- merge-mnvs (adjust the original VCF to include MNVs)
-
-##### A) generate -the bed files. From an unflagged CaVEMan VCF, create a BED file containing adjacent SNVs to check with SmartPhase.
-
-```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
-
-# BAMDIR
-BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
-CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
-
-cd ${PROJECTDIR}/analysis/CAVEMAN
-mkdir -p logs;
-num=0; 
-for Tumour_PDID in `cut -f 1 ${SAMPLETSV}`;  do 
-echo $num; 
-let num=num+1; 
-Normal_PDID=`grep ${Tumour_PDID} ${SAMPLETSV} |cut -f 2`;
-PAIR=${Tumour_PDID}"_vs_"$Normal_PDID; 
-bsub -e ./logs/smartphase.genbed.${Tumour_PDID}-vs-$Normal_PDID.e -o ./logs/smartphase.genbed.${Tumour_PDID}-vs-$Normal_PDID.o \
--J"smartphase_gbed[$num]" -n 2 -M8000 -R"select[mem>8000] rusage[mem=8000] span[hosts=1]"\
- -q normal "bash ${PROJECTDIR}/scripts/offpipe_calling/run_mnv_casmsmartphase_generate_bed.sh ${Tumour_PDID:?unset} ${Normal_PDID:?unset} ${PAIR:?unset} ${CAVEMANDIR:?unset} "; 
-done
-
-```
-
-##### B) Run smart-phase -to phase the MNV
-
-```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
-
-# BAMDIR
-BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
-CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
-
-cd ${PROJECTDIR}/analysis/CAVEMAN
-mkdir -p logs;
-num=0; 
-for Tumour_PDID in `cut -f 1 ${SAMPLETSV}`;  do 
-echo $num; 
-let num=num+1; 
-Normal_PDID=`grep ${Tumour_PDID} ${SAMPLETSV} |cut -f 2`;
-PAIR=${Tumour_PDID}"_vs_"$Normal_PDID;
-bsub -e ./logs/smartphase.phase.${Tumour_PDID}-vs-$Normal_PDID.e -o ./logs/smartphase.phase.${Tumour_PDID}-vs-$Normal_PDID.o \
--J"smartphase_gbed[$num]" -n 2 -M4000 -R"select[mem>4000] rusage[mem=4000] span[hosts=1]"\
- -q normal "bash ${PROJECTDIR}/scripts/offpipe_calling/run_mnv_casmsmartphase0.1.8.sh ${Tumour_PDID:?unset} ${Normal_PDID:?unset} ${PAIR:?unset} ${CAVEMANDIR:?unset} ${BMDIR:?unset} "; 
-done
-```
-
-##### C) merge-mnvs -to merge the MNVs in the VCF
-
-```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
-
-# BAMDIR
-BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
-# Sample pairs file
-SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
-#Directory where the CaVEMan results are
-CAVEMANDIR=${PROJECTDIR}/analysis/CAVEMAN
-
-cd ${PROJECTDIR}/analysis/CAVEMAN
-
-mkdir -p logs;
-num=0; 
-for Tumour_PDID in `cut -f 1 ${SAMPLETSV}`;  do 
-echo $num; 
-let num=num+1; 
-Normal_PDID=`grep ${Tumour_PDID} ${SAMPLETSV} |cut -f 2`;
-PAIR=${Tumour_PDID}"_vs_"$Normal_PDID;
-bsub -e ./logs/smartphase.mergemnv.${Tumour_PDID}-vs-$Normal_PDID.e -o ./logs/smartphase.mergemnv.${Tumour_PDID}-vs-$Normal_PDID.o \
--J"smartphase_mergmnv[$num]" -n 2 -M4000 -R"select[mem>4000] rusage[mem=4000] span[hosts=1]"\
- -q normal "bash ${PROJECTDIR}/scripts/offpipe_calling/run_mnv_casmsmartphase0.1.8_mergemnvs.sh ${Tumour_PDID:?unset} ${Normal_PDID:?unset} ${PAIR:?unset} ${CAVEMANDIR:?unset} "; 
-done
-```
-
-#### STEP 3- CGP CAVEMAN v18.2 flagging - cgpFlagCaVEMan
+#### STEP 2- CGP CAVEMAN v18.2 flagging - cgpFlagCaVEMan
 
 For this step the flagging .ini files are required, these contain the parameters for the flagging of the variants. A copy of these are shared with this repository in the resources folder. The files are:
 - [**flag.to.vcf.convert.ini**](../resources/caveman/flag.to.vcf.convert.ini) -  contains conversions of flags to FLAG ID
 - [**flag.vcf.config.ini**](../resources/caveman/flag.vcf.config.ini) - specifies which flags are cutoffs to use for WXS, WGS, etc. 
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
@@ -195,16 +105,16 @@ Normal_PDID=`grep ${Tumour_PDID} ${SAMPLETSV} |cut -f 2`;
 PAIR=${Tumour_PDID}"_vs_"$Normal_PDID; 
 bsub -e ./logs/caveman.cgpFlag.${Tumour_PDID}-vs-$Normal_PDID.e -o ./logs/caveman.cgpFlag.${Tumour_PDID}-vs-$Normal_PDID.o \
 -J"cavemanflag[$num]" -n 4 -M8000 -R"select[mem>8000] rusage[mem=8000] span[hosts=1]"\
- -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_cgpFlagCaVEManvv1.15.1_postprocessingmnv.sh ${CAVECONFIG:?unset} v1 ${Tumour_PDID} $Normal_PDID ${PAIR:?unset} ${BMDIR:?unset} ${CAVEMANDIR:?unset} "; 
+ -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_cgpFlagCaVEManv1.15.1_postprocessingmnv.sh ${CAVECONFIG:?unset} v1 ${Tumour_PDID} $Normal_PDID ${PAIR:?unset} ${BMDIR:?unset} ${CAVEMANDIR:?unset} "; 
 done
 ```
 
 Then the VCFs were compressed and indexed using the following commands:
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 
 # Sample pairs file
 SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
@@ -229,9 +139,9 @@ To predict the effect of the identified variants, ENSEMBLs' VEP v103 was used wi
 To run the VEP annotation the following commands were used:
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 
 #Sample pairs file
 SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
@@ -253,9 +163,9 @@ Variants were filtered to keep only those that passed flagging and were called a
 
 The following commands were used to filter the VCFs:
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 
 #Sample pairs file
 SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
@@ -277,9 +187,9 @@ find ./*/* -name "*.smartphase.flag.vep.vcf.gz" -exec tabix -p vcf {} \;
 Edit VCF file naming from Tumour_vs_Normal to Tumour only output to allow easy conversion to MAF 
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 #Sample pairs file
 SAMPLETSV=${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25_all.tsv
 #Caveman results directory
@@ -305,9 +215,9 @@ The list of FLAGS for cgpPindel v3.11 is required to run the calling. A copy of 
 
 To run the calling 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
@@ -339,9 +249,9 @@ To get the PASS calls within the targeted exome regions with +-100bp, the follow
 
 - First the files were renames to remove the Tumour_vs_Normal format in the VCF file names 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
@@ -361,9 +271,9 @@ done
 -To run the filter of PASSing variants within the targeted exome regions with 100bp, the following commands were used:
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
@@ -395,9 +305,9 @@ To predict the effect of the identified variants, ENSEMBLs' VEP v103 was used wi
 To run the VEP annotation the following commands were used:
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 
 # BAMDIR
 BMDIR=${PROJECTDIR}/bams/WES_xfilt/NOD_PDXV1
@@ -433,9 +343,9 @@ done
 
 #### Adding annotations for dbSNP155 common variants  - CavEMan
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 STUDY_ID=3365
 
 cd ${PROJECTDIR}/analysis
@@ -461,9 +371,9 @@ for f in `dir -1`; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.
 #### Adding annotations for dbSNP155 common variants  - Pindel
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 STUDY_ID=3365
 
 cd ${PROJECTDIR}/analysis
@@ -488,9 +398,9 @@ for f in `dir -1 `; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf
 ##### CREATE the sample lists with **QC/make_samplelists_from_manifest.pl**:
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 STUDY_ID=3365
 PREFIX="${STUDY}_${PROJECT}"
 
@@ -514,9 +424,9 @@ To make MAF files and plots, the files containing the SNV, MNV, INDELs  were com
 ```
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 
 i=2
 mkdir -p ${PROJECTDIR}/analysis/variants_combined/version${i}
@@ -539,9 +449,9 @@ dir -1  ${PROJECTDIR}/analysis/caveman_files/*/*.snpflagged.vcf.gz ${PROJECTDIR}
 ### Get the MAF files
 
 ```bash
-PROJECTDIR=/lustre/7688_3365_Gen_Effects_CDS2_loss_Uveal_melanoma_WES
-STUDY=7688
-PROJECT=3365
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
 i=2
 
 cd ${PROJECTDIR}/analysis/variants_combined/version${i}
@@ -571,7 +481,7 @@ The script outputs a list of MAF files and plots however relevant file for the n
 
 Files  Adding annotations for dbSNP155 common variants  - CavEMan
 ```bash
-PROJECTDIR=/lustre/scratch125/casm/teams/team113/projects/8117_2744_ivo_cherry_angioma_wes
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 #It requires the canapps project ID instead
 PROJECT=2744
@@ -595,7 +505,7 @@ for f in `dir -1 |grep PD`; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_common
 - Adding annotations for dbSNP155 common variants  - Pindel
 
 ```bash
-PROJECTDIR=/lustre/scratch125/casm/teams/team113/projects/8117_2744_ivo_cherry_angioma_wes
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 #It requires the canapps project ID instead
 PROJECT=2744
@@ -615,7 +525,7 @@ for f in */*pindel.vep.vcf.gz; do bash ${PROJECTDIR}/scripts/QC/select_vcf_pass_
 ```
 - Make MAF files
 ```bash
-PROJECTDIR=/lustre/scratch125/casm/teams/team113/projects/8117_2744_ivo_cherry_angioma_wes
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
 i=1
@@ -646,7 +556,7 @@ Rscript ${SCRIPTDIR}/maf2xlsx.R ${FINAL_MAF}
 ```
 - Copy the files to the Results directory and  plot
 ```bash 
-PROJECTDIR=/lustre/scratch125/casm/teams/team113/projects/8117_2744_ivo_cherry_angioma_wes
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
 i=1

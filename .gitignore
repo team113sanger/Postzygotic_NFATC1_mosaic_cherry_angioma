@@ -52,7 +52,7 @@ resources/tumour-only
 resources/ucsc
 resources/dbsnp/*
 !resources/dbsnp/addheader.txt
-#!resources/dbsnp/README_common_snps.txt
+!resources/dbsnp/README.md
 resources/ensembl/*
 !resources/ensembl/dermatlas_noncanonical_transcripts_ens103.tsv
 resources/germline
@@ -74,15 +74,14 @@ test_xenofilter
 
 #Analysis
 analysis/
-!analysis/variants_combined/
-analysis/variants_combined/*
-!analysis/variants_combined/version1/
-analysis/variants_combined/version1/*
-!analysis/variants_combined/version1/README.md
+!analysis/variants_combined/version1/*
+
+
 
 
 **/caveman_files
 **/pindel_files
+
 
 
 temp
