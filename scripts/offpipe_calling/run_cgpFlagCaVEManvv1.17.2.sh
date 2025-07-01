@@ -8,7 +8,7 @@ config=${1}
 version=${2}
 tumour=${3}
 normal=${4}
-#Name of the sample pair but for the file i.e. no "-"  e.g. PD52540a_vs_D52540b
+#Name of the sample pair but for the file i.e. no "-"  e.g. PD54368a_vs_PD54368b
 sample=${5}
 BAMDIR=${6}
 VCFDIR=${7}
@@ -17,8 +17,8 @@ pair="${tumour}_vs_${normal}"
 samplefolder="${tumour}"
 
 # paths to the VCF files on lustre
-export VCF_IN=${VCFDIR}/${samplefolder}/${sample}.muts.ids.mnv.vcf.gz
-export VCF_OUT=${VCFDIR}/${samplefolder}/${sample}.smartphase.flag.vcf
+export VCF_IN=${VCFDIR}/${samplefolder}/${sample}.caveman_c.vcf.gz
+export VCF_OUT=${VCFDIR}/${samplefolder}/${sample}.caveman_c.flag.vcf
 # paths to the BAM/CRAM files on lustre
 export MT_BAM=${BAMDIR}/${tumour}/${tumour}.sample.dupmarked.bam 
 export WT_BAM=${BAMDIR}/${normal}/${normal}.sample.dupmarked.bam
