@@ -10,7 +10,7 @@ All the scripts and code mentioned below can be found in the `scripts` directory
 
 MAF file containing the summary of the results of the variant calling can be found in Figshare Project [here](https://figshare.com/projects/A_post-zygotic_disruptive_germline_NFATC1_variant_in_a_patient_with_segmental_cherry_angiomas/254267). 
 
-Raw VCF files containing the flagged and VEP annotated variants calls can be found obtained from the EGA **EGAS00001008212**
+Raw VCF files containing the flagged and VEP annotated variant calls can be downloaded from EGA study Accession **EGAS00001008212**
 
 
 ## Sample Pairs used for somatic calling 
@@ -35,22 +35,19 @@ The following software is required to be installed and visible in the path befor
 git submodule update --init --recursive
 ```
 
-:warning: **IMPORTANT NOTE** :warning:
-- The scripts below are written to be run in our internal servers and submitted using `lsf bsub`. They are written to show an example of the commands used as the calling was performed with an internal pipeline that uses CaVEMan and Pindel inside singularity images.  Paths and the environment variables need to be adjusted to run in a different environment.
-- `cgpCaVEManwrapper` and `cgpPindel` were downloaded and used as singularity images within our internal pipelines using `bpipe`[https://docs.bpipe.org/](https://docs.bpipe.org/) and are called as such. Path, or scripts module call modifications may need to be made to run in a different environment.
+:warning: <span style="color:red">**IMPORTANT NOTE**</span> :warning:
+- The scripts below are written to be run in our internal servers, which have Ubuntu 22.04.5 and submit jobs using `lsf bsub`. They are written to show an example of the commands used, this is because the calling was performed with an internal pipeline that uses CaVEMan and Pindel which utilise the same singularity images can be made.  Paths and environment variables would need to be adjusted to run in a different environment.
+- `cgpCaVEManwrapper` and `cgpPindel` were downloaded and used as singularity images within our internal pipelines using `bpipe`[https://docs.bpipe.org/](https://docs.bpipe.org/). Path, or scripts module call modifications may need to be made to run in a different environment.
 
 ## Somatic variant calling
 
-The variant calling was performed using `CaVEMan` and `cgpPindel` somatic callers. To see the samples pairs used as tumour-normal see [metadata/8117-biosample_manifest-completed.tsv](../metadata/8117-biosample_manifest-completed.tsv).  Metadata of these samples can be found here These tasks, including VEP annotation with ENSEMBL v103, were performed inside an internal pipeline however the running for all the callers and variant effect prediction were the same as the ones used below. 
+The variant calling was performed using `CaVEMan` and `cgpPindel` somatic callers. To see the samples pairs used as tumour-normal for the calling see [metadata/8117-biosample_manifest-completed.tsv](../metadata/8117-biosample_manifest-completed.tsv). Metadata for the samples can be located in the[metadata/8117_2744_metadata.tsv](../metadata/8117_2744_metadata.tsv) table. Functional annotation was done with ENSEMBL v103 Variant Effect Predictor (VEP).  All jobs of these steps were performed inside an internal pipeline however the running for all the callers and variant effect prediction were the same as the ones used below. 
 
 
-## Calling of OMM2.5 grafts using filtered WES data
 
-To perform the variant calling on the whole exome sequencing data for OMM2.5 grafted lines, the following steps were taken:
+####  **STEP 1- CAVEMAN v1.15.1 SNV calling  **
 
-####  **STEP 1- CAVEMAN v1.18.2 SNV calling  with `-noFlag` option**
-
-Running parameters for the Caveman calling can be found inside the [run_Cavemanwrapper_1.18.2.sh](../scripts/offpipe_calling/run_Cavemanwrapper_1.18.2.sh) script.
+Running parameters for the Caveman calling can be found inside the [run_Cavemanwrapper_1.17.2.sh](../scripts/offpipe_calling/run_Cavemanwrapper_1.17.2.sh) script.
 
 **NOTE**
 Set the `PROJECTDIR` variable to the path where the repository was cloned into and run the following commands in the terminal:
@@ -76,7 +73,7 @@ let num=num+1;
 Normal_PDID=`grep ${Tumour_PDID} ${PROJECTDIR}/metadata/7688_3365_samplepairs_OMM25.tsv |cut -f 2`; 
 bsub -e ./logs/caveman.${Tumour_PDID}-vs-$Normal_PDID.e -o ./logs/caveman.${Tumour_PDID}-vs-$Normal_PDID.o \
 -J"cavemanrun[$num]" -n 7 -M40000 -R"select[mem>40000] rusage[mem=40000] span[hosts=1]"\
- -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_Cavemanwrapper_1.18.2.sh ${Tumour_PDID:?unset} ${Normal_PDID:?unset} 6 ${BMDIR:?unset} "; 
+ -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_Cavemanwrapper_1.17.2.sh ${Tumour_PDID:?unset} ${Normal_PDID:?unset} 6 ${BMDIR:?unset} "; 
 done
 
 ```
@@ -198,7 +195,7 @@ Normal_PDID=`grep ${Tumour_PDID} ${SAMPLETSV} |cut -f 2`;
 PAIR=${Tumour_PDID}"_vs_"$Normal_PDID; 
 bsub -e ./logs/caveman.cgpFlag.${Tumour_PDID}-vs-$Normal_PDID.e -o ./logs/caveman.cgpFlag.${Tumour_PDID}-vs-$Normal_PDID.o \
 -J"cavemanflag[$num]" -n 4 -M8000 -R"select[mem>8000] rusage[mem=8000] span[hosts=1]"\
- -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_cgpFlagCaVEManvv1.18.2_postprocessingmnv.sh ${CAVECONFIG:?unset} v1 ${Tumour_PDID} $Normal_PDID ${PAIR:?unset} ${BMDIR:?unset} ${CAVEMANDIR:?unset} "; 
+ -q long "bash ${PROJECTDIR}/scripts/offpipe_calling/run_cgpFlagCaVEManvv1.15.1_postprocessingmnv.sh ${CAVECONFIG:?unset} v1 ${Tumour_PDID} $Normal_PDID ${PAIR:?unset} ${BMDIR:?unset} ${CAVEMANDIR:?unset} "; 
 done
 ```
 
