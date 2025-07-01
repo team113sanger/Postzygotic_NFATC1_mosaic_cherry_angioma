@@ -294,75 +294,57 @@ PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
 
-
-cd ${PROJECTDIR}/analysis
+cd ${PROJECTDIR}/analysis/pindel_files
 
 # First get the on-target PASS variants from the VCF file copied 
 # The output is *pindel.vep.filt.vcf.gz
 BEDFILE=${PROJECTDIR}/resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed
 
-source ${PROJECTDIR}/scripts/QC/source_me.sh
- 
-cd ${PROJECTDIR}/analysis/pindel_files
 for f in */*pindel.vep.vcf.gz; do bash ${PROJECTDIR}/scripts/QC/select_vcf_pass_ontarget.sh $f ${BEDFILE}; done
- 
+
+```
+OUTPUT:
+- **`<SAMPLE>.pindel.vep.filt.vcf.gz`** files are created in the `analysis/pindel_files/PD*` directories. These files contain the variants that passed the filtering criteria.
+
+Subsequently, to add the information regarding the presence of variants in dbSNP155, the following steps were performed, using script `add_commonSNPs2vcf.sh` from the [`QC`](../scripts/QC) repository.
+
+```bash
+PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
+STUDY=8117
+PROJECT=2744
+
+cd ${PROJECTDIR}/analysis/pindel_files
+
 # Now add dbSNP common annotations to the filtered VCF from above
 # This creates *snpflagged.vcf.gz files.
  
 for f in `dir -1 `; do echo $f; bash ${PROJECTDIR}/scripts/QC/add_commonSNPs2vcf.sh -p ${PROJECTDIR} -o ./$f -v $f/$f.pindel.vep.filt.vcf.gz; done
+
 ```
-##### CREATE the sample lists with **QC/make_samplelists_from_manifest.pl**:
+OUTPUT:
+- **`<SAMPLE>.pindel.vep.filt.snpflagged.vcf.gz`** files are created in the `analysis/pindel_files/PD*` directories. These files contain the variants that passed the filtering criteria and have been annotated with dbSNP155 common variants information. These files are used to create the MAF files in the next step.
+
+#### Combine CaVEMan and Pindel files - to Generate MAF file
+
+We get the list of all the VCFs and their paths into a single file `caveman_pindel_vcfs_all.list` to be used for the MAF generation. The following commands were used to create the directory and the lists of VCF files to be used for the MAF generation using the `QC` repository scripts.
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
 STUDY=8117
 PROJECT=2744
-
-PREFIX="${STUDY}_${PROJECT}"
-
-# Create the testing directory
-source ${PROJECTDIR}/scripts/QC/source_me.sh
-mkdir -p ${PROJECTDIR}/metadata
-cd ${PROJECTDIR}/metadata
-
-# USe the script  to generate the sample liests but using the rejected samples 
-${PROJECTDIR}/scripts/QC/make_samplelists_from_manifest.pl --infile ${PROJECTDIR}/metadata/${STUDY}-biosample-manifest-completed.tsv --prefix ${STUDY}_${PROJECT}
-# Optional parameter when needed not in the test --reject rejected
-```
-
-## Combine CaVEMan and Pindel files
-
-To make MAF files and plots, the files containing the SNV, MNV, INDELs  were combined create a 'variants_combined' directory
-
-```bash
-# Create a subdirectory "version2" 
- mkdir -p ${PROJECTDIR}/analysis/variants_combined/version2
-```
-
-```bash
-PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
-STUDY=8117
-PROJECT=2744
-
-i=2
+i=1
 mkdir -p ${PROJECTDIR}/analysis/variants_combined/version${i}
-mkdir -p ${PROJECTDIR}/analysis/variants_combined/release_v${i}
-cd ${PROJECTDIR}/analysis/variants_combined/version${i}
 
-source ${PROJECTDIR}/scripts/QC/source_me.sh
+cd ${PROJECTDIR}/analysis/variants_combined/version${i}
 
 # If you have multiple independent tumours per patient and multiple tumours from the same tumour (duplicate samples), you can use "all" samples pulled from nst_links
 dir -1  ${PROJECTDIR}/analysis/caveman_files/*/*.snpflagged.vcf.gz ${PROJECTDIR}/analysis/pindel_files/*/*snpflagged.vcf.gz | grep -f ${PROJECTDIR}/metadata/${STUDY}_${PROJECT}-analysed_all_tum.txt > caveman_pindel_vcfs_all.list
  
-# To include all independent tumours per patient (no samples from the same tumour) - "independent"
-dir -1  ${PROJECTDIR}/analysis/caveman_files/*/*.snpflagged.vcf.gz ${PROJECTDIR}/analysis/pindel_files/*/*.snpflagged.vcf.gz | grep -f ${PROJECTDIR}/metadata/${STUDY}_${PROJECT}-independent_tumours_all_tum.txt > caveman_pindel_vcfs_independent.list
- 
-# If you have multiple tumours per patient, exclude duplicate samples - "one per patient"
-dir -1  ${PROJECTDIR}/analysis/caveman_files/*/*.snpflagged.vcf.gz ${PROJECTDIR}/analysis/pindel_files/*/*.snpflagged.vcf.gz | grep -f ${PROJECTDIR}/metadata/${STUDY}_${PROJECT}-one_tumour_per_patient_all_tum.txt > caveman_pindel_vcfs_onePerPatient.list
- 
-
 ```
-### Get the MAF files
+#### Get the MAF files
+
+To make MAF files and plots, the VCF files containing the SNV, MNV, INDELs were combined create a `variants_combined` directory. The following commands were used to create the directory and the lists of VCF files to be used for the MAF generation using the 
+
 
 ```bash
 PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
