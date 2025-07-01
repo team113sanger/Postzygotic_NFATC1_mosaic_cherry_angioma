@@ -34,7 +34,7 @@ export GERM_INDEL=/lustre/resources/caveman/example/empty_germline_bed_for_cavem
 export EXCLUDE_CONTIGS_FILE=${REF_BASE}/caveman/ignore_contigs_caveman.txt
 ln -fs ${REF_BASE}/genome.fa ${WORK}/. && grep -vFwf ${EXCLUDE_CONTIGS_FILE} ${REF_BASE}/genome.fa.fai > ${WORK}/genome.fa.fai
 
-# paths to the BAM/CRAM files on lustre
+# paths to the BAM files on lustre
 export MT_BAM=${BAMDIR}/${tumour}/${tumour}.sample.dupmarked.bam 
 export WT_BAM=${BAMDIR}/${normal}/${normal}.sample.dupmarked.bam
 
