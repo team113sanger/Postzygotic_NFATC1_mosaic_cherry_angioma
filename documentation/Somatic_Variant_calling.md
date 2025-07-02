@@ -12,6 +12,7 @@ MAF file containing the summary of the results of the variant calling can be fou
 
 Raw VCF files containing the flagged and VEP annotated variant calls can be downloaded from EGA study Accession **EGAS00001008212**
 
+Information on how and where to copy the  result MAF file can be found in the [`analysis/variants_combined/version1/README.md`](../analysis/variants_combined/version1/README.md) file.
 
 ## Sample Pairs used for somatic calling 
 
