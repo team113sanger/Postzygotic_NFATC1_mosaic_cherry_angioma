@@ -45,7 +45,7 @@ git submodule update --init --recursive
 
 The variant calling was performed using `CaVEMan` and `cgpPindel` somatic callers. To see the samples pairs used as tumour-normal for the calling see [metadata/8117-biosample_manifest-completed.tsv](../metadata/8117-biosample_manifest-completed.tsv). Metadata for the samples can be located in the[metadata/8117_2744_metadata.tsv](../metadata/8117_2744_metadata.tsv) table. Functional annotation was done with ENSEMBL v103 Variant Effect Predictor (VEP). 
 
-####  **STEP 1- CAVEMAN v1.15.1 SNV calling  **
+####  **STEP 1- CAVEMAN v1.15.1 SNV calling**
 
 Running parameters for the Caveman calling can be found inside the [run_Cavemanwrapper_1.17.2.sh](../scripts/offpipe_calling/run_Cavemanwrapper_1.17.2.sh) script.
 
@@ -197,10 +197,10 @@ done
 #### STEP 5-  CGP Pindel v3.5  -  VEP annotation
 
 To predict the effect of the identified variants, ENSEMBLs' VEP v103 was used with additional custom annotations regarding their presence in external datasets such as:
-    - gnomAD [`**v3.1**`](https://gnomad.broadinstitute.org/news/2019-10-gnomad-v3-0/)
-    - dbSNP [`**v155**`](https://ftp.ncbi.nih.gov/snp/archive/b155/VCF/GCF_000001405.39.gz) Instructions on how the file was parsed can be found [`resources/dbsnp`](../resources/dbsnp)
-    - COSMIC [`**v97**`](https://cancer.sanger.ac.uk/cosmic/download/cosmic)
-    - ClinVar [`**20220115**`](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2022/clinvar_20220115.vcf.gz)
+- gnomAD [`v3.1`](https://gnomad.broadinstitute.org/news/2019-10-gnomad-v3-0/)
+- dbSNP [`v155`](https://ftp.ncbi.nih.gov/snp/archive/b155/VCF/GCF_000001405.39.gz) Instructions on how the file was parsed can be found [`resources/dbsnp`](../resources/dbsnp)
+- COSMIC [`v97`](https://cancer.sanger.ac.uk/cosmic/download/cosmic)
+- ClinVar [`20220115`](https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2022/clinvar_20220115.vcf.gz)
 
 To run the VEP annotation the following commands were used:
 
