@@ -2,7 +2,7 @@
 
 [![DOI]()]()
 
-This repository serves as the contains the code for the mulitple analyses related to the manuscript:
+This repository serves as the contains the code for the multiple analyses related to the manuscript:
 
 > **_A post-zygotic disruptive germline NFATC1 variant in a patient with segmental cherry angiomas_**
 

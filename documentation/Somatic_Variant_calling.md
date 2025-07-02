@@ -8,7 +8,7 @@ The somatic calling, flagging and annotation was performed with an internal pipe
 
 ## Results
 
-MAF file containing the summary of the results of the variant calling can be found in Figshare Project [here](https://figshare.com/projects/A_post-zygotic_disruptive_germline_NFATC1_variant_in_a_patient_with_segmental_cherry_angiomas/254267). 
+MAF file containing the summary of the results of the variant calling can be found in FigShare Project [here](https://figshare.com/projects/A_post-zygotic_disruptive_germline_NFATC1_variant_in_a_patient_with_segmental_cherry_angiomas/254267). 
 
 Raw VCF files containing the flagged and VEP annotated variant calls can be downloaded from EGA study Accession **EGAS00001008212**
 

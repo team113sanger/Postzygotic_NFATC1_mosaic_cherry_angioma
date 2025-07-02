@@ -45,7 +45,7 @@ mkdir -p ${BAMDIR}
 
 ### Calculate depth of coverage
 
-To make a job array to calculate the depth of coverage for each sample across the baitset coordinates we ran the following commands:
+To make a job array to calculate the depth of coverage for each sample across the bait set coordinates we ran the following commands:
 
 ```bash
 export PROJECTDIR=/lustre/8117_2744_ivo_cherry_angioma_wes
