@@ -1,0 +1,87 @@
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+# Icon must end with two \r
+Icon
+# Thumbnails
+._*
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+renv
+tmp
+bams
+BAMS
+fastqs
+logs
+*.vcf.gz
+*.vcf.gz.tbi
+*.vcf
+*.fastq.gz
+*.fq.gz
+*.bam
+*.cram
+
+
+# Ignore dot env
+*.venv
+
+# Ignore resources folder
+resources/ascat
+resources/baitset
+resources/baitset
+resources/CHANGELOG.md
+resources/clinvar
+resources/COSMIC
+resources/dndscv
+resources/germline
+resources/giab
+resources/gistic2
+resources/gnomad
+resources/GRCh38_full.fasta
+resources/GRCh38_full.fasta.fai
+resources/music2
+resources/oncodrivefml
+resources/oncokb
+resources/README.md
+resources/signal
+resources/sparki
+resources/tumour-only
+resources/ucsc
+resources/dbsnp/*
+!resources/dbsnp/addheader.txt
+!resources/dbsnp/README.md
+resources/ensembl/*
+!resources/ensembl/dermatlas_noncanonical_transcripts_ens103.tsv
+resources/germline
+resources/GIAB
+resources/gistic
+resources/music2
+!resources/pindel/
+
+
+
+
+# Ignore data_release folder
+data_release
+
+#Ignore base_dir
+base_dir
+required_datasets
+test_xenofilter
+
+#Analysis
+analysis/
+!analysis/variants_combined/version1/*
+
+
+
+
+**/caveman_files
+**/pindel_files
+
+
+
+temp

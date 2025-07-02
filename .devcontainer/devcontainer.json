@@ -1,0 +1,19 @@
+{
+    "name": "Dev",
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/rocker-org/devcontainer-features/r-rig:1": {
+            "version": "4.3.3",
+            "installREnv": true
+        }
+    },	
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "mechatroner.rainbow-csv"
+            ]
+        }
+    }, 
+    "postCreateCommand": "Rscript -e 'if (file.exists(\"renv.lock\")) renv::restore()'"
+}
