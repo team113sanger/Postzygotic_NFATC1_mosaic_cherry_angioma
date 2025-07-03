@@ -1,6 +1,6 @@
 # A post-zygotic disruptive germline _NFATC1_ variant in a patient with segmental cherry angiomas
 
-[![DOI]()]()
+[![DOI](https://zenodo.org/badge/986271800.svg)](https://doi.org/10.5281/zenodo.15796569)
 
 This repository serves as the contains the code for the multiple analyses related to the manuscript:
 
