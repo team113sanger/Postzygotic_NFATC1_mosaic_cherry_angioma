@@ -59,6 +59,32 @@ oncoplot(chang_maf,
          annotationColor = pcol, # This is to ensure the colours match between slide and the samples
          draw_titv = F)
 dev.off()
+oncoplot_fname<-file.path(results_dir, "Cherry_angioma_HS_som_mut_oncoplot.png")
+png(file =oncoplot_fname ,width = 900, height = 900)
+oncoplot(chang_maf,
+         top = 20,
+         altered=F,
+         showTitle = F,
+         showTumorSampleBarcodes = T,
+         drawColBar = FALSE,
+         drawRowBar = FALSE,
+         SampleNamefontSize = 1.6,
+         sepwd_samples = 0.9,
+         sepwd_genes = 0.9,
+         fontSize = 1.3,
+         additionalFeatureCex = 0.8,
+         #sampleOrder = c(), # This is to ensure the order as the tissue section 
+         annotationFontSize = 2,
+         legendFontSize = 2,
+         barcode_mar = 8,
+         gene_mar=12,
+         clinicalFeatures = 'Tissue_type',
+         sortByAnnotation = FALSE,
+         # colors=varc_cols, # To set the colours of the mutations 
+         annotationColor = pcol, # This is to ensure the colours match between slide and the samples
+         draw_titv = F)
+dev.off()
+
 
 logger::log_info("Plot the variants observed in NFATC1 gene - lollipop plot")
 loli_fname<-file.path(results_dir, "NFATC1_loliplot.pdf")

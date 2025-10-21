@@ -10,7 +10,8 @@ Icon
 .Rhistory
 .RData
 .Ruserdata
-renv
+renv/*
+!renv/activate.R
 tmp
 bams
 BAMS
